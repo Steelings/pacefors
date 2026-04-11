@@ -30,3 +30,6 @@ Processes all the output JSON files through 3 stages and writes the final output
 Self-explanatory, checks if Forsen is live and if hes in the Minecraft category  
 Returns exit code `0` if he's offline, `1` if hes NOT playing Minecraft, and `2` if he's live and playing Minecraft.  
 Also has a `--wait` option that hangs the script if he's live not in the Minecraft category, and waits until he starts playing Minecraft, used by the GitHub Workflow.
+
+
+- Forked and maintained - Original from https://github.com/BleachDev/BleachDev @BleachDev - All rights reserved
