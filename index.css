@@ -188,3 +188,52 @@ select {
 .summary-tab, .graphs-tab, .individual-tab {
     display: none; /* Controlled by JS */
 }
+
+
+/* Update these parts in your existing CSS */
+
+.header-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.nav-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: 0.2s;
+    color: var(--text-muted);
+}
+
+.nav-item:hover {
+    background: var(--background-accent);
+    color: var(--text-main);
+}
+
+.nav-item.active {
+    color: var(--accent);
+    background: rgba(88, 166, 255, 0.1);
+    font-weight: bold;
+}
+
+/* RESPONSIVE CARDS */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .record-date-value { font-size: 2.5rem; }
+    .pie-container { grid-column: span 1 !important; }
+}
+
+.stat-card {
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

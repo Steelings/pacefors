@@ -3,188 +3,145 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pacefors</title>
+    <title>Pacefors v2.0</title>
     <link rel="stylesheet" href="index.css"/>
     <link rel="icon" type="image/png" href="static/SmugTime.webp"/>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-scale-timestack/dist/chartjs-scale-timestack.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 </head>
 <body>
     <div class="header">
-        <div style="display: flex; align-items: center; gap: 0 10px; padding: 8px 12px" id="header-title-group">
-            <h1 id="header-text">Forsen Speedrun Tracker</h1>
-            <div>
-                <img src="static/1528.webp" height="24" alt="15:28" style="vertical-align: text-bottom"/>
-                <img src="static/SmugTime.webp" alt="SmugTime" style="vertical-align: text-bottom"/>
-                <span style="color: #80ee80; font-size: 10px; display: inline-block">v1.3<br>doubters?</span>
+        <div style="display: flex; align-items: center; gap: 0 15px; padding: 8px 12px" id="header-title-group">
+            <h1 id="header-text" style="font-size: 1.2rem;">Forsen Speedrun Tracker v2.0 BETA <span style="font-size: 0.7rem; color: var(--text-muted); block-size: auto;">- forked and updated by Steelings</span></h1>
+            <div class="header-badges">
+                <img src="static/1528.webp" height="24" alt="15:28"/>
+                <img src="static/SmugTime.webp" height="24" alt="SmugTime"/>
             </div>
         </div>
 
-        <div style="flex: 1"></div>
-
-        <div id="header-dropdown-btn" class="tab-like"></div>
-
         <div id="header-tabs">
-            <div>
-                <input type="radio" id="summary-tab" name="header-tab" checked/>
-                <label class="tab-like" for="summary-tab">Daily Summary</label>
-            </div>
-            <div>
-                <input type="radio" id="graphs-tab" name="header-tab"/>
-                <label class="tab-like" for="graphs-tab">Odds/Graphs</label>
-            </div>
-            <div>
-                <input type="radio" id="individual-tab" name="header-tab"/>
-                <label class="tab-like" for="individual-tab">All Runs</label>
-            </div>
-            <div id="download-text" class="tab-like" onclick="document.getElementById('download-background').style.display = 'block'">
-                Download<br>Dataset
-            </div>
-            <a href="https://github.com/Steelings/pacefors" class="tab-like">
-                <img src="static/github.svg" height="28" alt="Source Code"/>
+            <div class="nav-item active" data-tab="summary-tab">Daily Summary</div>
+            <div class="nav-item" data-tab="graphs-tab">Odds/Graphs</div>
+            <div class="nav-item" data-tab="individual-tab">All Runs</div>
+            <div id="download-text" class="nav-item" onclick="document.getElementById('download-background').style.display = 'block'">Dataset</div>
+            <a href="https://github.com/Steelings/pacefors" class="nav-item">
+                <img src="static/github.svg" height="20" alt="Source"/>
             </a>
         </div>
     </div>
-    <div id="header-runs"></div>
 
-    <div class="summary-tab">
-        <div class="card prediction-hero">
+    <div class="summary-tab active-tab">
+        <div class="prediction-hero">
             <div class="prediction-main">
                 <h3>Estimated Record Date</h3>
                 <span class="record-date-value" id="hero-date">Calculating...</span>
-                <p id="hero-prob">Awaiting data processing...</p>
+                <p id="hero-prob" style="color: var(--text-muted);">Awaiting data...</p>
             </div>
             <div class="prediction-stats">
-                <div class="stat-mini">
-                    <span>90% Chance After</span>
-                    <strong id="date-after">-</strong>
-                </div>
-                <div class="stat-mini">
-                    <span>90% Chance Before</span>
-                    <strong id="date-before">-</strong>
-                </div>
+                <div class="stat-mini"><span>90% After</span><strong id="date-after">-</strong></div>
+                <div class="stat-mini"><span>90% Before</span><strong id="date-before">-</strong></div>
             </div>
         </div>
 
         <div class="dashboard-grid">
-            <div class="stat-card" id="card-nethers">
-                <h3>Nether Enters</h3>
-                <span class="stat-value" id="val-nether-qty">0</span>
-                <span class="stat-subtext" id="val-nether-avg">Avg: 0:00</span>
-            </div>
-            <div class="stat-card" id="card-bastions">
-                <h3>First Structure</h3>
-                <span class="stat-value" id="val-struct-qty">0</span>
-                <span class="stat-subtext" id="val-struct-avg">Avg: 0:00</span>
-            </div>
-            <div class="stat-card" id="card-stronghold">
-                <h3>Stronghold Enters</h3>
-                <span class="stat-value" id="val-strong-qty">0</span>
-                <span class="stat-subtext" id="val-strong-avg">Avg: 0:00</span>
-            </div>
-            <div class="stat-card" id="card-ends">
-                <h3>End Entries</h3>
-                <span class="stat-value" id="val-end-qty">0</span>
-                <span class="stat-subtext" id="val-end-avg">Avg: 0:00</span>
-            </div>
-            <div class="stat-card" style="grid-column: span 2; display: flex; flex-direction: column; align-items: center;">
+            <div class="stat-card"><h3>Nether Enters</h3><span class="stat-value" id="val-nether-qty">0</span><span class="stat-subtext" id="val-nether-avg">Avg: 0:00</span></div>
+            <div class="stat-card"><h3>First Structure</h3><span class="stat-value" id="val-struct-qty">0</span><span class="stat-subtext" id="val-struct-avg">Avg: 0:00</span></div>
+            <div class="stat-card"><h3>Stronghold Enters</h3><span class="stat-value" id="val-strong-qty">0</span><span class="stat-subtext" id="val-strong-avg">Avg: 0:00</span></div>
+            <div class="stat-card"><h3>End Entries</h3><span class="stat-value" id="val-end-qty">0</span><span class="stat-subtext" id="val-end-avg">Avg: 0:00</span></div>
+            
+            <div class="stat-card pie-container" style="grid-column: span 2;">
                 <h3>Run Killers (Death Causes)</h3>
-                <div style="width: 300px; height: 300px;">
-                <canvas id="death-pie-chart"></canvas>
-        </div>
-        </div>
-
-        <div class="chart-section card">
-            <h2>Pace Analytics: Daily Average Entry Times</h2>
-            <div style="height: 400px; width: 100%;">
-                <canvas class="avg-entry-chart"></canvas>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="death-pie-chart"></canvas>
+                </div>
             </div>
         </div>
 
         <div class="card">
-            <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 15px;">
+            <h2>Pace Analytics</h2>
+            <div style="height: 400px;"><canvas class="avg-entry-chart"></canvas></div>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2>Recent Run History</h2>
-                <label><select id="summary-day" style="background: #181820; color: white; border: 1px solid #444; padding: 5px;"></select></label>
+                <select id="summary-day"></select>
             </div>
-            <div id="summary-runs" style="max-height: 500px; overflow-y: auto;"></div>
+            <div id="summary-runs"></div>
         </div>
     </div>
+
     <div class="graphs-tab">
-        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; padding: 20px;">
-             <div class="container" style="background: #252540; padding: 20px; border-radius: 8px;">
-                <h2>Split Odds</h2>
-                <table id="odds-table">
-                    <tr><th></th><th>Nether</th><th>Struct 1</th><th>Struct 2</th><th>Blind</th><th>Stronghold</th><th>End</th></tr>
-                    <tr id="odds-chance"><th>Chance of Enter</th></tr>
-                    <tr id="odds-day-chance"><th>Chance/Day</th></tr>
-                </table>
-             </div>
+        <div class="card">
+            <h2>Split Odds</h2>
+            <table id="odds-table" style="width: 100%; text-align: left;">
+                <thead><tr><th>Split</th><th>Chance</th><th>Day Chance</th></tr></thead>
+                <tbody id="odds-body">
+                    <tr id="odds-chance"></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <div class="individual-tab">
-        <div style="text-align: left; display: inline-block; padding: 20px;">
+        <div class="card">
             <h2>All Runs</h2>
             <div id="individual-runs"></div>
         </div>
     </div>
 
-    <div id="download-background">
-        <div id="download-container">
-            <h1>Datasets</h1>
+    <div id="download-background" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000;">
+        <div class="card" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width: 400px;">
+            <div style="display:flex; justify-content:space-between;">
+                <h2>Datasets</h2>
+                <button onclick="document.getElementById('download-background').style.display='none'" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
+            </div>
+            <div id="dataset-links" style="margin-top:20px; text-align:left;">
+                <p><a href="./data/stripped_runs.json" download>stripped_runs.json</a></p>
+                <p><a href="./data/live_stripped_runs.json" download>live_stripped_runs.json</a></p>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import vodRuns from "./data/stripped_runs.json" with { type: "json" };
         import {buildDailySummary, buildDeathPieChart} from "./js/summary.js";
-        import {buildEntryChart, buildAvgEntryChart} from "./js/graphs.js";
+        import {buildAvgEntryChart} from "./js/graphs.js";
         import {buildOdds, buildPredictions} from "./js/odds.js";
-        import {C_BASTION, C_FORT, C_NETHER, C_BLIND, C_STRONGHOLD, C_END, C_FINISH} from "./js/helpers/utils.js";
         import {Runlist} from "./js/runlist.js";
 
         async function tryImport(url) {
-            try {
-                const mod = await import(url, { with: { type: "json" } });
-                return mod.default ?? [];
-            } catch (e) { return []; }
+            try { return (await import(url, { with: { type: "json" } })).default; }
+            catch (e) { return []; }
         }
 
         const liveRuns = await tryImport("./data/live_stripped_runs.json");
         const runs = vodRuns.concat(liveRuns);
 
-        // Run the builders
+        // Init
+        buildDailySummary(runs);
+        buildPredictions(runs);
+        buildDeathPieChart(runs);
         buildAvgEntryChart(runs);
         buildOdds(runs);
-        buildPredictions(runs);
-        buildDailySummary(runs);
-        buildDeathPieChart(runs);
         new Runlist(document.getElementById("individual-runs"), runs);
 
-        // Header Stats
-        document.getElementById("header-runs").innerHTML = `
-            <span>Runs <span style="color: #55ee55">${runs.length}</span></span>
-            <span>Nethers <span style="color: ${C_NETHER}">${runs.filter(r => r.nether).length}</span></span>
-            <span>Ends <span style="color: ${C_END}">${runs.filter(r => r.end).length}</span></span>
-        `;
-
-        // Tab Logic
-        const tabs = [ "summary-tab", "graphs-tab", "individual-tab" ];
-        const onChange = () => {
-            const selectedTab = tabs.find(tab => document.getElementById(tab).checked);
-            tabs.forEach(tab => {
-                const elements = document.getElementsByClassName(tab);
-                for (const e of elements) e.style.display = tab === selectedTab ? "block" : "none";
+        // Tab Navigation Fix
+        const navItems = document.querySelectorAll('.nav-item[data-tab]');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                navItems.forEach(n => n.classList.remove('active'));
+                item.classList.add('active');
+                
+                document.querySelectorAll('.summary-tab, .graphs-tab, .individual-tab').forEach(tab => {
+                    tab.style.display = 'none';
+                });
+                document.querySelector('.' + item.dataset.tab).style.display = 'block';
             });
-        };
-        tabs.forEach(tab => document.getElementById(tab).onchange = onChange);
-        onChange();
+        });
     </script>
 </body>
 </html>
