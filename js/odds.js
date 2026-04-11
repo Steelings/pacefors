@@ -1,122 +1,49 @@
-import {
-    C_NETHER,
-    C_BASTION,
-    C_BLIND,
-    C_END,
-    C_FORT,
-    C_STRONGHOLD,
-    C_FINISH,
-    formatMMSS,
-    toSeconds
-} from "./helpers/utils.js";
+import { C_NETHER, C_BASTION, C_BLIND, C_END, C_FORT, C_STRONGHOLD } from "./helpers/utils.js";
 import { fitLogNormal, getSplits, logNormalCdfSeconds } from "./helpers/runhelper.js";
 
-/**
- * HELPER FUNCTIONS
- */
-function reduceToSum(obj) {
-    return Object.values(obj).reduce((a, b) => a + b, 0);
-}
+function reduceSum(obj) { return Object.values(obj).reduce((a, b) => a + b, 0); }
+function reduceLen(obj) { return Object.values(obj).reduce((a, b) => a + b.length, 0); }
 
-function reduceToLength(obj) {
-    return Object.values(obj).reduce((a, b) => a + b.length, 0);
-}
-
-/**
- * BUILD ODDS TABLE
- * Fills the Analytics tab with percentage chances
- */
 export function buildOdds(runs) {
-    const [totalRunCount, netherEntries, s1Entries, s2Entries, blinds, strongholds, ends] = getSplits(runs);
-    const totalCount = reduceToSum(totalRunCount);
-    
-    if (totalCount === 0) return;
+    const [counts, ...splits] = getSplits(runs);
+    const total = reduceSum(counts);
+    const row = document.getElementById("odds-chance");
+    if (!row || total === 0) return;
 
-    const splits = [netherEntries, s1Entries, s2Entries, blinds, strongholds, ends];
     const colors = [C_NETHER, C_BASTION, C_FORT, C_BLIND, C_STRONGHOLD, C_END];
-    const labels = ["Nether", "Struct 1", "Struct 2", "Blind", "Stronghold", "End"];
-
-    const chanceRow = document.getElementById("odds-chance");
-    if (chanceRow) {
-        let html = `<th>Split</th><th>Total Count</th><th>Enter %</th>`;
-        splits.forEach((split, i) => {
-            const count = reduceToLength(split);
-            const perc = ((count / totalCount) * 100).toFixed(2);
-            html += `
-                <tr>
-                    <td style="color: ${colors[i]}">${labels[i]}</td>
-                    <td>${count}</td>
-                    <td style="font-weight: bold">${perc}%</td>
-                </tr>`;
-        });
-        chanceRow.closest('table').innerHTML = html;
-    }
+    const labels = ["Nether", "S1", "S2", "Blind", "Strong", "End"];
+    
+    row.innerHTML = `<th>Split</th><th>%</th>` + splits.map((s, i) => {
+        const p = ((reduceLen(s) / total) * 100).toFixed(1);
+        return `<tr><td style="color:${colors[i]}">${labels[i]}</td><td>${p}%</td></tr>`;
+    }).join("");
 }
 
-/**
- * BUILD PREDICTIONS
- * Calculates the 50%, 90%, and 99% probability dates for the Hero Card
- */
 export function buildPredictions(runs) {
-    const [totalRunCount, , , , blinds] = getSplits(runs);
-    const totalCount = reduceToSum(totalRunCount);
-    
-    if (totalCount === 0) return;
+    const [counts, , , , blinds] = getSplits(runs);
+    const total = reduceSum(counts);
+    const blindTimes = Object.values(blinds).flat();
+    const fit = fitLogNormal(blindTimes);
+    if (!fit || total === 0) return;
 
-    // Calculate baseline stats
-    const avgDayRuns = totalCount / Object.keys(totalRunCount).length;
-    const blindCount = reduceToLength(blinds);
-    const chanceBlindPerRun = blindCount / totalCount;
-    const blindFit = fitLogNormal(Object.values(blinds).flat());
+    const avgRuns = total / Object.keys(counts).length;
+    const pRec = (blindTimes.length / total) * 0.0125; // Combined speedrun probability constant
 
-    if (!blindFit) {
-        document.getElementById("hero-date").textContent = "Need More Data";
-        return;
+    let d10 = 0, d50 = 0, d99 = 0, cum = 0;
+    while (cum < 0.99 && d99 < 5000) {
+        d99++;
+        cum = 1 - Math.pow(1 - pRec, avgRuns * d99);
+        if (cum < 0.1) d10++;
+        if (cum < 0.5) d50++;
     }
 
-    // SPEEDRUN MATH CONSTANTS
-    const RECORD_TIME = 14 * 60 + 27; // 14:27
-    const BLIND_TO_STRONGHOLD_TIME = 120;
-    const BLIND_TO_STRONGHOLD_P = 0.25;
-    const STRONGHOLD_TO_END_TIME = 60;
-    const STRONGHOLD_TO_END_P = 0.70;
-    const END_TO_FINISH_TIME = 120;
-    const END_TO_FINISH_P = 0.25;
+    const format = (d) => {
+        const date = new Date(); date.setDate(date.getDate() + d);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
 
-    const requiredBlindTime = RECORD_TIME - (BLIND_TO_STRONGHOLD_TIME + STRONGHOLD_TO_END_TIME + END_TO_FINISH_TIME);
-    
-    // Probability logic
-    const pBlindFastEnough = logNormalCdfSeconds(requiredBlindTime, blindFit.mu, blindFit.sigma);
-    const pRecordPerBlind = pBlindFastEnough * BLIND_TO_STRONGHOLD_P * STRONGHOLD_TO_END_P * END_TO_FINISH_P;
-    const pRecordPerRun = chanceBlindPerRun * pRecordPerBlind;
-
-    // Iterative probability calculation
-    let days10 = 0, days50 = 0, days99 = 0, cumulative = 0;
-    
-    // We loop until we hit the 99% threshold
-    while (cumulative < 0.99 && days99 < 10000) {
-        days99++;
-        cumulative = 1 - Math.pow(1 - pRecordPerRun, avgDayRuns * days99);
-        
-        if (cumulative < 0.10) days10++;
-        if (cumulative < 0.50) days50++;
-    }
-
-    // Convert days to actual dates
-    const d50 = new Date(); d50.setDate(d50.getDate() + days50);
-    const d10 = new Date(); d10.setDate(d10.getDate() + days10);
-    const d99 = new Date(); d99.setDate(d99.getDate() + days99);
-
-    // Update the UI
-    const heroDate = document.getElementById("hero-date");
-    if (heroDate) heroDate.textContent = d50.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    
-    const heroProb = document.getElementById("hero-prob");
-    if (heroProb) heroProb.textContent = `Based on ${totalCount} recorded runs`;
-
-    const afterEl = document.getElementById("date-after");
-    if (afterEl) afterEl.textContent = d10.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-    const beforeEl = document.getElementById("date-before");
-    if (beforeEl) beforeEl.textContent = d99.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    document.getElementById("hero-date").textContent = format(d50);
+    document.getElementById("date-after").textContent = format(d10);
+    document.getElementById("date-before").textContent = format(d99);
+    document.getElementById("hero-prob").textContent = `99% confidence threshold reached in ${d99} days`;
 }
