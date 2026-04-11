@@ -1,10 +1,46 @@
+import {
+    C_NETHER,
+    C_BASTION,
+    C_BLIND,
+    C_END,
+    C_FORT,
+    C_STRONGHOLD,
+    C_FINISH,
+    formatMMSS,
+    toSeconds
+} from "./helpers/utils.js";
+import {fitLogNormal, getSplits, logNormalCdfSeconds, logNormalInvCdfSeconds} from "./helpers/runhelper.js";
+
+export function buildOdds(runs) {
+    const [totalRunCount, ...splits] = getSplits(runs);
+    const totalCount = reduceToSum(totalRunCount);
+    const colors = [ C_NETHER, C_BASTION, C_FORT, C_BLIND, C_STRONGHOLD, C_END ];
+    const totals = splits.map(reduceToLength);
+    const chances = totals.map(c => c / totalCount);
+
+    const chanceRow = document.getElementById("odds-chance");
+    const dayChanceRow = document.getElementById("odds-day-chance");
+
+    if (chanceRow) {
+        chanceRow.innerHTML = `<th>Chance of Enter</th>` + chances.map((c, i) =>
+            `<td style="color: ${colors[i]}">${(c * 100).toFixed(2)}%<br>(${totals[i]})</td>`
+        ).join("");
+    }
+}
+
 export function buildPredictions(runs) {
     const [totalRunCount, , , , blinds] = getSplits(runs);
     const totalCount = reduceToSum(totalRunCount);
+    
+    // Safety check to prevent crash if data is empty
+    if (totalCount === 0) return;
+
     const avgDayRuns = totalCount / Object.keys(totalRunCount).length;
     const blindCount = reduceToLength(blinds);
     const chanceBlindPerRun = blindCount / totalCount;
     const blindFit = fitLogNormal(Object.values(blinds).flat());
+
+    if (!blindFit) return;
 
     const RECORD_TIME = 14 * 60 + 27;
     const BLIND_TO_STRONGHOLD_TIME = 120;
@@ -32,8 +68,22 @@ export function buildPredictions(runs) {
     const date90 = new Date(); date90.setDate(date90.getDate() + daysCumulative90);
 
     // FILL THE NEW HERO CARD
-    document.getElementById("hero-date").textContent = date50.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
-    document.getElementById("hero-prob").textContent = `50% Probability based on ${totalCount} recorded runs`;
-    document.getElementById("date-after").textContent = date10.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
-    document.getElementById("date-before").textContent = date90.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+    const heroDate = document.getElementById("hero-date");
+    const heroProb = document.getElementById("hero-prob");
+    const dateAfter = document.getElementById("date-after");
+    const dateBefore = document.getElementById("date-before");
+
+    if (heroDate) heroDate.textContent = date50.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+    if (heroProb) heroProb.textContent = `50% Probability based on ${totalCount} recorded runs`;
+    if (dateAfter) dateAfter.textContent = date10.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+    if (dateBefore) dateBefore.textContent = date90.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+}
+
+// HELPER FUNCTIONS (The missing pieces)
+function reduceToSum(obj) {
+    return Object.values(obj).reduce((a, b) => a + b, 0);
+}
+
+function reduceToLength(obj) {
+    return Object.values(obj).reduce((a, b) => a + b.length, 0);
 }
