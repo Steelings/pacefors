@@ -6,103 +6,83 @@
     <title>Pacefors v2.0</title>
     <link rel="stylesheet" href="index.css"/>
     <link rel="icon" type="image/png" href="static/SmugTime.webp"/>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 </head>
 <body>
-    <div class="header">
-        <div style="display: flex; align-items: center; gap: 0 15px; padding: 8px 12px" id="header-title-group">
-            <h1 id="header-text" style="font-size: 1.2rem;">Forsen Speedrun Tracker v2.0 BETA <span style="font-size: 0.7rem; color: var(--text-muted); block-size: auto;">- forked and updated by Steelings</span></h1>
-            <div class="header-badges">
-                <img src="static/1528.webp" height="24" alt="15:28"/>
-                <img src="static/SmugTime.webp" height="24" alt="SmugTime"/>
-            </div>
+    <nav class="main-nav">
+        <div class="nav-left">
+            <h1 id="header-text">Forsen Speedrun Tracker v2.0 <span class="beta-tag">BETA</span></h1>
+            <p class="credit">Forked & updated by Steelings</p>
         </div>
-
-        <div id="header-tabs">
-            <div class="nav-item active" data-tab="summary-tab">Daily Summary</div>
-            <div class="nav-item" data-tab="graphs-tab">Odds/Graphs</div>
-            <div class="nav-item" data-tab="individual-tab">All Runs</div>
-            <div id="download-text" class="nav-item" onclick="document.getElementById('download-background').style.display = 'block'">Dataset</div>
-            <a href="https://github.com/Steelings/pacefors" class="nav-item">
-                <img src="static/github.svg" height="20" alt="Source"/>
-            </a>
+        <div class="nav-center">
+            <div class="nav-link active" data-tab="summary-tab">Dashboard</div>
+            <div class="nav-link" data-tab="graphs-tab">Analytics</div>
+            <div class="nav-link" data-tab="individual-tab">All Runs</div>
         </div>
-    </div>
+        <div class="nav-right">
+            <button class="dataset-btn" onclick="document.getElementById('download-background').style.display = 'block'">Dataset</button>
+            <a href="https://github.com/Steelings/pacefors" target="_blank"><img src="static/github.svg" height="24"></a>
+        </div>
+    </nav>
 
-    <div class="summary-tab active-tab">
+    <div class="tab-content summary-tab active-tab">
         <div class="prediction-hero">
-            <div class="prediction-main">
-                <h3>Estimated Record Date</h3>
-                <span class="record-date-value" id="hero-date">Calculating...</span>
-                <p id="hero-prob" style="color: var(--text-muted);">Awaiting data...</p>
-            </div>
+            <h3>Estimated Record Date</h3>
+            <span class="record-date-value" id="hero-date">Calculating...</span>
             <div class="prediction-stats">
                 <div class="stat-mini"><span>90% After</span><strong id="date-after">-</strong></div>
-                <div class="stat-mini"><span>90% Before</span><strong id="date-before">-</strong></div>
+                <div class="stat-mini"><span>99% Before</span><strong id="date-before">-</strong></div>
             </div>
         </div>
 
         <div class="dashboard-grid">
             <div class="stat-card"><h3>Nether Enters</h3><span class="stat-value" id="val-nether-qty">0</span><span class="stat-subtext" id="val-nether-avg">Avg: 0:00</span></div>
-            <div class="stat-card"><h3>First Structure</h3><span class="stat-value" id="val-struct-qty">0</span><span class="stat-subtext" id="val-struct-avg">Avg: 0:00</span></div>
-            <div class="stat-card"><h3>Stronghold Enters</h3><span class="stat-value" id="val-strong-qty">0</span><span class="stat-subtext" id="val-strong-avg">Avg: 0:00</span></div>
+            <div class="stat-card"><h3>Structure 1</h3><span class="stat-value" id="val-s1-qty">0</span><span class="stat-subtext" id="val-s1-avg">Avg: 0:00</span></div>
+            <div class="stat-card"><h3>Structure 2</h3><span class="stat-value" id="val-s2-qty">0</span><span class="stat-subtext" id="val-s2-avg">Avg: 0:00</span></div>
+            <div class="stat-card"><h3>Stronghold</h3><span class="stat-value" id="val-strong-qty">0</span><span class="stat-subtext" id="val-strong-avg">Avg: 0:00</span></div>
             <div class="stat-card"><h3>End Entries</h3><span class="stat-value" id="val-end-qty">0</span><span class="stat-subtext" id="val-end-avg">Avg: 0:00</span></div>
             
-            <div class="stat-card pie-container" style="grid-column: span 2;">
-                <h3>Run Killers (Death Causes)</h3>
-                <div style="position: relative; height: 300px; width: 100%;">
-                    <canvas id="death-pie-chart"></canvas>
-                </div>
+            <div class="stat-card pie-card">
+                <h3>Run Killers</h3>
+                <div class="pie-wrapper"><canvas id="death-pie-chart"></canvas></div>
             </div>
         </div>
 
-        <div class="card">
-            <h2>Pace Analytics</h2>
-            <div style="height: 400px;"><canvas class="avg-entry-chart"></canvas></div>
+        <div class="card chart-card">
+            <h2>Pace Consistency (Daily Averages)</h2>
+            <div class="chart-container"><canvas class="avg-entry-chart"></canvas></div>
         </div>
 
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>Recent Run History</h2>
+        <div class="card list-card">
+            <div class="list-header">
+                <h2>Run History</h2>
                 <select id="summary-day"></select>
             </div>
             <div id="summary-runs"></div>
         </div>
     </div>
 
-    <div class="graphs-tab">
+    <div class="tab-content graphs-tab">
         <div class="card">
-            <h2>Split Odds</h2>
-            <table id="odds-table" style="width: 100%; text-align: left;">
-                <thead><tr><th>Split</th><th>Chance</th><th>Day Chance</th></tr></thead>
-                <tbody id="odds-body">
+            <h2>Split Odds Table</h2>
+            <div id="odds-container">
+                 <table class="modern-table">
                     <tr id="odds-chance"></tr>
-                </tbody>
-            </table>
+                 </table>
+            </div>
         </div>
     </div>
 
-    <div class="individual-tab">
-        <div class="card">
-            <h2>All Runs</h2>
-            <div id="individual-runs"></div>
-        </div>
+    <div class="tab-content individual-tab">
+        <div class="card"><div id="individual-runs"></div></div>
     </div>
 
-    <div id="download-background" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000;">
-        <div class="card" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width: 400px;">
-            <div style="display:flex; justify-content:space-between;">
-                <h2>Datasets</h2>
-                <button onclick="document.getElementById('download-background').style.display='none'" style="background:none; border:none; color:white; cursor:pointer;">✕</button>
-            </div>
-            <div id="dataset-links" style="margin-top:20px; text-align:left;">
-                <p><a href="./data/stripped_runs.json" download>stripped_runs.json</a></p>
-                <p><a href="./data/live_stripped_runs.json" download>live_stripped_runs.json</a></p>
-            </div>
+    <div id="download-background" style="display:none" class="modal">
+        <div class="card modal-content">
+            <h2>Download Data</h2>
+            <a href="./data/stripped_runs.json" download>stripped_runs.json</a>
+            <button onclick="document.getElementById('download-background').style.display='none'">Close</button>
         </div>
     </div>
 
@@ -113,15 +93,9 @@
         import {buildOdds, buildPredictions} from "./js/odds.js";
         import {Runlist} from "./js/runlist.js";
 
-        async function tryImport(url) {
-            try { return (await import(url, { with: { type: "json" } })).default; }
-            catch (e) { return []; }
-        }
-
-        const liveRuns = await tryImport("./data/live_stripped_runs.json");
+        const liveRuns = await fetch("./data/live_stripped_runs.json").then(r => r.json()).catch(() => []);
         const runs = vodRuns.concat(liveRuns);
 
-        // Init
         buildDailySummary(runs);
         buildPredictions(runs);
         buildDeathPieChart(runs);
@@ -129,17 +103,12 @@
         buildOdds(runs);
         new Runlist(document.getElementById("individual-runs"), runs);
 
-        // Tab Navigation Fix
-        const navItems = document.querySelectorAll('.nav-item[data-tab]');
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                navItems.forEach(n => n.classList.remove('active'));
-                item.classList.add('active');
-                
-                document.querySelectorAll('.summary-tab, .graphs-tab, .individual-tab').forEach(tab => {
-                    tab.style.display = 'none';
-                });
-                document.querySelector('.' + item.dataset.tab).style.display = 'block';
+        // Modern Tab Logic
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                document.querySelectorAll('.nav-link, .tab-content').forEach(el => el.classList.remove('active', 'active-tab'));
+                link.classList.add('active');
+                document.querySelector('.' + link.dataset.tab).classList.add('active-tab');
             });
         });
     </script>

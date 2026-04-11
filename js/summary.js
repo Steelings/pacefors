@@ -1,12 +1,16 @@
-import {C_BASTION, C_FORT, C_NETHER, C_BLIND, C_STRONGHOLD, C_END, C_FINISH, formatMMSS} from "./helpers/utils.js";
-import {Runlist} from "./runlist.js";
-import {getSplits} from "./helpers/runhelper.js";
+import { C_BASTION, C_FORT, C_NETHER, C_BLIND, C_STRONGHOLD, C_END, C_FINISH, formatMMSS } from "./helpers/utils.js";
+import { Runlist } from "./runlist.js";
+import { getSplits } from "./helpers/runhelper.js";
 
+/**
+ * BUILD DAILY SUMMARY
+ * Populates the dashboard cards (Nethers, S1, S2, etc.) and handles the run history list.
+ */
 export function buildDailySummary(runs) {
     const splits = getSplits(runs);
     
-    // Wire the splits to your HTML IDs
-    // Index mapping from your runhelper: 1=Nether, 2=S1, 5=Stronghold, 6=End
+    // Mapping IDs from HTML to specific indices in the getSplits array
+    // Index 1: Nether, 2: S1, 3: S2, 5: Stronghold, 6: End
     const updateCard = (idQty, idAvg, splitObj) => {
         const qtyEl = document.getElementById(idQty);
         const avgEl = document.getElementById(idAvg);
@@ -14,18 +18,18 @@ export function buildDailySummary(runs) {
 
         const allTimes = Object.values(splitObj).flat();
         qtyEl.textContent = allTimes.length;
-        if (avgEl) {
-            const avg = allTimes.length > 0 ? allTimes.reduce((a, b) => a + b, 0) / allTimes.length : 0;
-            avgEl.textContent = `Avg: ${formatMMSS(avg)}`;
-        }
+        
+        const avg = allTimes.length > 0 ? allTimes.reduce((a, b) => a + b, 0) / allTimes.length : 0;
+        if (avgEl) avgEl.textContent = `Avg: ${formatMMSS(avg)}`;
     };
 
     updateCard('val-nether-qty', 'val-nether-avg', splits[1]);
-    updateCard('val-struct-qty', 'val-struct-avg', splits[2]);
+    updateCard('val-s1-qty', 'val-s1-avg', splits[2]);
+    updateCard('val-s2-qty', 'val-s2-avg', splits[3]);
     updateCard('val-strong-qty', 'val-strong-avg', splits[5]);
     updateCard('val-end-qty', 'val-end-avg', splits[6]);
 
-    // Set up the history dropdown
+    // Setup for Run History List
     const runlist = new Runlist(document.getElementById("summary-runs"), []);
     const runsByDay = {};
     runs.forEach(run => {
@@ -36,23 +40,35 @@ export function buildDailySummary(runs) {
     const daySelect = document.getElementById("summary-day");
     if (daySelect) {
         daySelect.innerHTML = "";
-        Object.keys(runsByDay).forEach(day => {
+        // Sort dates descending (newest first)
+        Object.keys(runsByDay).reverse().forEach(day => {
             const opt = document.createElement("option");
             opt.value = day;
             opt.textContent = `${day} (${runsByDay[day].length} runs)`;
             daySelect.appendChild(opt);
         });
+
         daySelect.onchange = () => {
             runlist.runs = runsByDay[daySelect.value];
             runlist.rebuildRuns();
         };
-        daySelect.value = daySelect.options[daySelect.options.length - 1].value;
-        daySelect.onchange();
+
+        // Initialize with the most recent day
+        if (daySelect.options.length > 0) {
+            daySelect.value = daySelect.options[0].value;
+            daySelect.onchange();
+        }
     }
 }
 
+/**
+ * BUILD DEATH PIE CHART
+ * Visualizes cause of death with custom WebP icons and percentage breakdown.
+ */
 export function buildDeathPieChart(runs) {
     const deathCounts = {};
+    
+    // Icon mapping based on your static folder
     const imgMap = {
         "Lava": "static/forsenHoppedin.webp",
         "Gravity": "static/forsenGravity.webp",
@@ -62,57 +78,77 @@ export function buildDeathPieChart(runs) {
         "Fire": "static/forsenFire.webp",
         "Skeletons": "static/skeleton.webp",
         "Wither": "static/wither.webp",
-        "Reset/Other": "static/aware.webp"
+        "Other": "static/aware.webp"
     };
 
     runs.forEach(run => {
         if (run.death) {
-            let cause = "Reset/Other";
+            let cause = "Other";
             const d = run.death.toLowerCase();
             if (d.includes("lava")) cause = "Lava";
-            else if (d.includes("fell") || d.includes("ground")) cause = "Gravity";
+            else if (d.includes("fell") || d.includes("ground") || d.includes("high place")) cause = "Gravity";
             else if (d.includes("piglin")) cause = "Piglins";
             else if (d.includes("hoglin")) cause = "Hoglins";
             else if (d.includes("blaze")) cause = "Blazes";
             else if (d.includes("burned") || d.includes("fire")) cause = "Fire";
             else if (d.includes("skel")) cause = "Skeletons";
             else if (d.includes("wither")) cause = "Wither";
+            
             deathCounts[cause] = (deathCounts[cause] || 0) + 1;
         }
     });
 
-    const ctx = document.getElementById('death-pie-chart').getContext('2d');
-    
-    // Create image objects for Chart.js
-    const images = Object.keys(imgMap).reduce((acc, key) => {
-        const img = new Image();
-        img.src = imgMap[key];
-        acc[key] = img;
-        return acc;
-    }, {});
+    const sortedLabels = Object.keys(deathCounts).sort((a, b) => deathCounts[b] - deathCounts[a]);
+    const sortedData = sortedLabels.map(label => deathCounts[label]);
 
-    new Chart(ctx, {
+    const ctx = document.getElementById('death-pie-chart');
+    if (!ctx) return;
+
+    new Chart(ctx.getContext('2d'), {
         type: 'pie',
         data: {
-            labels: Object.keys(deathCounts),
+            labels: sortedLabels,
             datasets: [{
-                data: Object.values(deathCounts),
-                backgroundColor: ['#ee5555', '#558877', '#8855ee', '#eeaa55', '#aaaaff', '#635b55', '#30363d', '#7a0000', '#252540'],
-                borderWidth: 2,
-                borderColor: '#161b22'
+                data: sortedData,
+                backgroundColor: [
+                    '#ee5555', // Nether Red
+                    '#558877', // Stronghold Green
+                    '#8855ee', // Blind Purple
+                    '#eeaa55', // End Orange
+                    '#635b55', // Bastion Grey
+                    '#7a0000', // Fort Red
+                    '#252540', // Navy
+                    '#30363d'  // Muted
+                ],
+                borderColor: '#161b22',
+                borderWidth: 3
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'right', labels: { color: '#8b949e', font: { family: 'JetBrains Mono' } } },
+                legend: {
+                    position: 'right',
+                    labels: {
+                        color: '#8b949e',
+                        padding: 20,
+                        font: { family: 'JetBrains Mono', size: 12 },
+                        // Injects icons into the legend if browser supports it
+                        usePointStyle: true,
+                        pointStyle: 'rectRounded'
+                    }
+                },
                 tooltip: {
+                    backgroundColor: '#161b22',
+                    titleFont: { family: 'JetBrains Mono' },
+                    bodyFont: { family: 'JetBrains Mono' },
                     callbacks: {
-                        label: (ctx) => {
-                            const sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                            const perc = ((ctx.raw / sum) * 100).toFixed(1);
-                            return ` ${ctx.label}: ${ctx.raw} (${perc}%)`;
+                        label: (context) => {
+                            const sum = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const value = context.raw;
+                            const percentage = ((value / sum) * 100).toFixed(1) + "%";
+                            return ` ${context.label}: ${value} (${percentage})`;
                         }
                     }
                 }
