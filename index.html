@@ -3,176 +3,75 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pacefors v2.0 | Forsen Tracker</title>
+    <title>Pacefors v2.0</title>
     <link rel="stylesheet" href="index.css"/>
     <link rel="icon" type="image/png" href="static/SmugTime.webp"/>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-
-    <nav class="navbar">
-        <div class="nav-logo">
-            Pacefors <span class="beta-tag">v2.0 BETA</span>
+    <section class="prediction-hero">
+        <h3>Estimated Record Date</h3>
+        <span class="record-date-value neon-glow" id="hero-date">Calculating...</span>
+        <div class="prediction-stats">
+            <div class="stat-mini"><span>90% After</span><strong id="date-after">-</strong></div>
+            <div class="stat-mini"><span>99% Before</span><strong id="date-before">-</strong></div>
         </div>
-        <div class="nav-links">
-            <div class="nav-item active" onclick="switchTab('summary-tab', this)">Dashboard</div>
-            <div class="nav-item" onclick="switchTab('graphs-tab', this)">Analytics</div>
-            <div class="nav-item" onclick="switchTab('individual-tab', this)">All Runs</div>
-        </div>
-        <div class="nav-right">
-            <button class="dataset-btn" onclick="toggleModal(true)">Dataset</button>
-            <a href="https://github.com/Steelings/pacefors" target="_blank" class="github-link">
-                <img src="static/github.svg" height="24" alt="GitHub">
-            </a>
-        </div>
-    </nav>
+    </section>
 
-    <main id="summary-tab" class="tab-content active-tab">
-        <section class="prediction-hero">
-            <h3>Estimated Record Date</h3>
-            <span class="record-date-value" id="hero-date">Calculating...</span>
-            <p id="hero-prob" style="color: var(--muted); margin-bottom: 20px;">Awaiting data processing...</p>
-            
-            <div class="prediction-stats">
-                <div class="stat-mini">
-                    <span>90% Chance After</span>
-                    <strong id="date-after">-</strong>
-                </div>
-                <div class="stat-mini">
-                    <span>99% Chance Before</span>
-                    <strong id="date-before">-</strong>
-                </div>
-            </div>
-        </section>
-
-        <div class="dashboard-grid">
-            <div class="stat-card">
-                <h3>Nether Enters</h3>
-                <span class="stat-value" id="val-nether-qty">0</span>
-                <span class="stat-subtext" id="val-nether-avg">Avg: 0:00</span>
-            </div>
-            <div class="stat-card">
-                <h3>Structure 1</h3>
-                <span class="stat-value" id="val-s1-qty">0</span>
-                <span class="stat-subtext" id="val-s1-avg">Avg: 0:00</span>
-            </div>
-            <div class="stat-card">
-                <h3>Structure 2</h3>
-                <span class="stat-value" id="val-s2-qty">0</span>
-                <span class="stat-subtext" id="val-s2-avg">Avg: 0:00</span>
-            </div>
-            <div class="stat-card">
-                <h3>Stronghold</h3>
-                <span class="stat-value" id="val-strong-qty">0</span>
-                <span class="stat-subtext" id="val-strong-avg">Avg: 0:00</span>
-            </div>
-            <div class="stat-card">
-                <h3>End Entries</h3>
-                <span class="stat-value" id="val-end-qty">0</span>
-                <span class="stat-subtext" id="val-end-avg">Avg: 0:00</span>
-            </div>
-
-            <div class="stat-card pie-card">
-                <h3>Run Killers (Death Causes)</h3>
-                <div class="pie-container">
-                    <canvas id="death-pie-chart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <section class="card">
-            <h2>Pace Analytics: Daily Averages</h2>
-            <div class="chart-wrapper">
-                <canvas class="avg-entry-chart"></canvas>
-            </div>
-        </section>
-
-        <section class="card">
-            <div class="history-header">
-                <h2>Recent Run History</h2>
-                <select id="summary-day"></select>
-            </div>
-            <div id="summary-runs"></div>
-        </section>
-    </main>
-
-    <main id="graphs-tab" class="tab-content">
-        <div class="card">
-            <h2>Detailed Split Odds</h2>
-            <div class="table-scroll">
-                <table class="modern-table">
-                    <tbody id="odds-chance">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
-    <main id="individual-tab" class="tab-content">
-        <div class="card">
-            <div id="individual-runs"></div>
-        </div>
-    </main>
-
-    <div id="download-background" class="modal-overlay" style="display: none;">
-        <div class="modal-content card">
-            <h2>Available Datasets</h2>
-            <p>Download raw JSON data for local analysis.</p>
-            <div class="modal-links">
-                <a href="./data/stripped_runs.json" download class="dataset-link">stripped_runs.json</a>
-                <a href="./data/live_stripped_runs.json" download class="dataset-link">live_stripped_runs.json</a>
-            </div>
-            <button class="close-btn" onclick="toggleModal(false)">Close</button>
+    <div class="dashboard-grid">
+        <div class="stat-card"><h3>Nether</h3><span class="stat-value" id="val-nether-qty">-</span><span class="stat-subtext" id="val-nether-avg">-</span></div>
+        <div class="stat-card"><h3>Struct 1</h3><span class="stat-value" id="val-s1-qty">-</span><span class="stat-subtext" id="val-s1-avg">-</span></div>
+        <div class="stat-card"><h3>Struct 2</h3><span class="stat-value" id="val-s2-qty">-</span><span class="stat-subtext" id="val-s2-avg">-</span></div>
+        <div class="stat-card"><h3>Stronghold</h3><span class="stat-value" id="val-strong-qty">-</span><span class="stat-subtext" id="val-strong-avg">-</span></div>
+        <div class="stat-card"><h3>End</h3><span class="stat-value" id="val-end-qty">-</span><span class="stat-subtext" id="val-end-avg">-</span></div>
+        <div class="stat-card pie-card">
+            <h3>Death Causes</h3>
+            <div class="canvas-container"><canvas id="death-pie-chart"></canvas></div>
         </div>
     </div>
 
+    <section class="card centered-section">
+        <h2>Detailed Split Odds</h2>
+        <div class="table-container">
+            <table class="modern-table">
+                <tbody id="odds-chance"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Pace Analytics: Daily Averages</h2>
+        <div class="chart-container">
+            <canvas class="avg-entry-chart"></canvas>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="history-header">
+            <h2>Recent Run History</h2>
+            <select id="summary-day"></select>
+        </div>
+        <div id="summary-runs"></div>
+    </section>
+
     <script type="module">
         import vodRuns from "./data/stripped_runs.json" with { type: "json" };
-        import { buildDailySummary, buildDeathPieChart } from "./js/summary.js";
-        import { buildAvgEntryChart } from "./js/graphs.js";
-        import { buildOdds, buildPredictions } from "./js/odds.js";
-        import { Runlist } from "./js/runlist.js";
+        import {buildDailySummary, buildDeathPieChart} from "./js/summary.js";
+        import {buildAvgEntryChart} from "./js/graphs.js";
+        import {buildOdds, buildPredictions} from "./js/odds.js";
+        import {Runlist} from "./js/runlist.js";
 
-        async function init() {
-            // Load live data if available
-            let liveRuns = [];
-            try {
-                const response = await fetch("./data/live_stripped_runs.json");
-                liveRuns = await response.json();
-            } catch (e) { console.log("No live data found."); }
+        const liveRuns = await fetch("./data/live_stripped_runs.json").then(r => r.json()).catch(() => []);
+        const runs = vodRuns.concat(liveRuns);
 
-            const runs = vodRuns.concat(liveRuns);
-
-            // Execute Builders
-            buildDailySummary(runs);
-            buildPredictions(runs);
-            buildDeathPieChart(runs);
-            buildAvgEntryChart(runs);
-            buildOdds(runs);
-            new Runlist(document.getElementById("individual-runs"), runs);
-        }
-
-        init();
-    </script>
-
-    <script>
-        // Global UI Functions
-        function switchTab(tabId, el) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active-tab');
-            el.classList.add('active');
-            window.scrollTo(0,0);
-        }
-
-        function toggleModal(show) {
-            document.getElementById('download-background').style.display = show ? 'flex' : 'none';
-        }
+        // Run all builders immediately
+        buildDailySummary(runs);
+        buildPredictions(runs);
+        buildDeathPieChart(runs);
+        buildAvgEntryChart(runs);
+        buildOdds(runs);
+        new Runlist(document.getElementById("summary-runs"), runs);
     </script>
 </body>
 </html>

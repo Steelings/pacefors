@@ -88,15 +88,58 @@ export function buildAvgEntryChart(runs) {
         data: { datasets },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
+            maintainAspectRatio: false, // Prevents the squishing
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
             scales: {
                 x: { 
                     type: "linear", 
-                    ticks: { callback: v => new Date(v).toLocaleDateString('en-US', {month:'short', day:'numeric'}) }
+                    grid: {
+                        display: false // Cleans up the background
+                    },
+                    ticks: { 
+                        color: '#8b949e',
+                        font: { family: 'JetBrains Mono', size: 10 },
+                        callback: v => new Date(v).toLocaleDateString('en-US', {month:'short', day:'numeric'}) 
+                    }
                 },
-                y: { beginAtZero: true, ticks: { callback: v => formatMMSS(v) } }
+                y: { 
+                    beginAtZero: true, 
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.05)' // Subtle guide lines
+                    },
+                    ticks: { 
+                        color: '#8b949e',
+                        font: { family: 'JetBrains Mono', size: 10 },
+                        callback: v => formatMMSS(v) 
+                    }
+                }
             },
-            plugins: { legend: { labels: { color: '#8b949e' } } }
+            plugins: { 
+                legend: { 
+                    position: 'top',
+                    align: 'end',
+                    labels: { 
+                        color: '#8b949e',
+                        boxWidth: 12,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        font: { family: 'JetBrains Mono', size: 12 }
+                    } 
+                },
+                tooltip: {
+                    backgroundColor: '#161b22',
+                    borderColor: '#30363d',
+                    borderWidth: 1,
+                    titleColor: '#58a6ff',
+                    bodyFont: { family: 'JetBrains Mono' },
+                    callbacks: {
+                        label: (context) => ` ${context.dataset.label}: ${formatMMSS(context.raw.y)}`
+                    }
+                }
+            }
         }
     });
 }
