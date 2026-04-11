@@ -34,19 +34,36 @@ body {
 .neon-glow {
     display: inline-block;
     font-size: 3.5rem;
-    color: #ffffff !important; /* White core for the light tube */
+    color: #ffffff !important; 
     font-weight: 800;
     margin: 20px 0;
-    /* Layered shadows create the neon bloom */
     text-shadow: 
-        0 0 7px #fff,
-        0 0 10px #ff58db,
-        0 0 21px #ff58db,
-        0 0 42px #c50010,
-        0 0 82px #c50010;
-    animation: neon-pulse 1.5s infinite alternate;
+        0 0 4px #ffffff,
+        0 0 10px #ffffff,
+        0 0 18px #58a6ff,
+        0 0 38px #58a6ff,
+        0 0 73px #005cc5;
+    animation: neon-pulse 1.5s ease-in-out infinite alternate;
 }
 
+@keyframes neon-pulse {
+    from {
+        text-shadow: 
+            0 0 2px #ffffff,
+            0 0 5px #ffffff,
+            0 0 12px #58a6ff,
+            0 0 22px #58a6ff,
+            0 0 50px #005cc5;
+    }
+    to {
+        text-shadow: 
+            0 0 4px #ffffff,
+            0 0 10px #ffffff,
+            0 0 18px #58a6ff,
+            0 0 38px #58a6ff,
+            0 0 73px #005cc5;
+    }
+}
 .prediction-stats {
     display: flex;
     justify-content: center;

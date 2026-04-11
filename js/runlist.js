@@ -97,7 +97,9 @@ export class Runlist {
             // Updated Twitch URL generation
             let link = "";
             if (outRun.vod && outRun.timestamps && outRun.timestamps.length > 0) {
-                const parts = outRun.timestamps[0].split(':');
+                // Grab the LAST timestamp in the array (the death/reset), instead of [0] (the start)
+                const lastStamp = outRun.timestamps[outRun.timestamps.length - 1];
+                const parts = lastStamp.split(':');
                 const tStr = parts.length === 3 
                     ? `${parts[0]}h${parts[1]}m${parts[2]}s` 
                     : `${parts[0]}m${parts[1]}s`;
