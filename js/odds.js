@@ -28,16 +28,16 @@ export function buildOdds(runs) {
     }
 }
 
-export function buildPredictions(runs) {
-    const [counts, , , , blinds] = getSplits(runs);
-    const total = reduceSum(counts);
+function calculateDaysToRecord(runsSubset) {
+    const [counts, , , , blinds] = getSplits(runsSubset);
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
     const blindTimes = Object.values(blinds).flat();
-    const fit = fitLogNormal(blindTimes);
-    if (!fit || total === 0) return;
+    if (blindTimes.length === 0 || total === 0) return null;
 
     const avgRuns = total / Object.keys(counts).length;
     const pRec = (blindTimes.length / total) * 0.0125; 
 
+    // RESTORED: d10 calculation added back in
     let d10 = 0, d50 = 0, d99 = 0, cum = 0;
     while (cum < 0.99 && d99 < 5000) {
         d99++;
@@ -45,19 +45,55 @@ export function buildPredictions(runs) {
         if (cum < 0.1) d10++;
         if (cum < 0.5) d50++;
     }
+    return { d10, d50, d99 };
+}
 
+export function buildPredictions(runs) {
+    // 1. Calculate current prediction
+    const currentPred = calculateDaysToRecord(runs);
+    if (!currentPred) return;
+
+    // 2. Find runs from the most recent day to separate them
+    const latestDate = runs[0].date; 
+    const previousRuns = runs.filter(r => r.date !== latestDate);
+    
+    // 3. Calculate what the prediction WAS before the latest stream
+    const previousPred = calculateDaysToRecord(previousRuns);
+
+    // 4. Format dates for the UI
     const format = (d) => {
         const date = new Date(); date.setDate(date.getDate() + d);
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
 
     const hDate = document.getElementById("hero-date");
-    const hProb = document.getElementById("hero-prob");
+    const hTrend = document.getElementById("hero-trend");
+    
+    // RESTORED: Grab the missing HTML elements
     const dAfter = document.getElementById("date-after");
     const dBefore = document.getElementById("date-before");
+    const hProb = document.getElementById("hero-prob");
 
-    if (hDate) hDate.textContent = format(d50);
-    if (dAfter) dAfter.textContent = format(d10);
-    if (dBefore) dBefore.textContent = format(d99);
-    if (hProb) hProb.textContent = `99% confidence reached in ${d99} days`;
+    // RESTORED: Update all the dates, not just the main hero date
+    if (hDate) hDate.textContent = format(currentPred.d50);
+    if (dAfter) dAfter.textContent = format(currentPred.d10);
+    if (dBefore) dBefore.textContent = format(currentPred.d99);
+    if (hProb) hProb.textContent = `99% confidence reached in ${currentPred.d99} days`;
+
+    // 5. Inject the Neon Green/Red Arrow
+    if (hTrend && previousPred) {
+        const diff = currentPred.d50 - previousPred.d50;
+        if (diff < 0) {
+            hTrend.textContent = `(↓ ${Math.abs(diff)} days)`;
+            hTrend.className = "trend-indicator trend-good";
+        } else if (diff > 0) {
+            hTrend.textContent = `(↑ ${diff} days)`;
+            hTrend.className = "trend-indicator trend-bad";
+        } else {
+            hTrend.textContent = "(No Change)";
+            hTrend.className = "trend-indicator";
+            hTrend.style.color = "#8b949e";
+            hTrend.style.textShadow = "none";
+        }
+    }
 }

@@ -32,12 +32,19 @@ body {
 }
 
 .neon-glow {
-    display: block;
+    display: inline-block;
     font-size: 3.5rem;
-    color: #cf0cbf !important;
+    color: #ffffff !important; /* White core for the light tube */
     font-weight: 800;
     margin: 20px 0;
-    text-shadow: 0 0 10px rgba(241, 88, 255, 0.7), 0 0 20px rgba(255, 88, 219, 0.5), 0 0 30rgb(197, 0, 16)cc5;
+    /* Layered shadows create the neon bloom */
+    text-shadow: 
+        0 0 7px #fff,
+        0 0 10px #ff58db,
+        0 0 21px #ff58db,
+        0 0 42px #c50010,
+        0 0 82px #c50010;
+    animation: neon-pulse 1.5s infinite alternate;
 }
 
 .prediction-stats {
@@ -102,3 +109,19 @@ body {
     padding: 5px 15px; border-radius: 6px; cursor: pointer;
 }
 .dataset-btn:hover { background: #30363d; }
+
+
+.trend-indicator {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-left: 15px;
+    vertical-align: middle;
+}
+.trend-good {
+    color: #55ee55;
+    text-shadow: 0 0 10px #55ee55;
+}
+.trend-bad {
+    color: #ee5555;
+    text-shadow: 0 0 10px #ee5555;
+}
