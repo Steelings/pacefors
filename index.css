@@ -1,41 +1,190 @@
-.prediction-hero {
+/* --- GLOBAL THEME --- */
+* {
+    font-family: "JetBrains Mono", monospace;
+    box-sizing: border-box;
+}
+
+:root {
+    --background: #0d1117;
+    --background-accent: #161b22;
+    --card-bg: #21262d;
+    --border: #30363d;
+    --text-main: #f0f6fc;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+
+    /* Original Split Colors */
+    --nether: #ee5555;
+    --bastion: #635b55;
+    --fort: #7a0000;
+    --blind: #8855ee;
+    --stronghold: #558877;
+    --end: #eeaa55;
+    --finish: #aaaaff;
+}
+
+body {
+    margin: 0;
+    background-color: var(--background);
+    color: var(--text-main);
     text-align: center;
-    padding: 40px 20px;
-    background: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
-    border-bottom: 2px solid #30363d;
+}
+
+/* --- HEADER & NAVIGATION --- */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--background-accent);
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.tab-like {
+    padding: 8px 16px;
+    cursor: pointer;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+input[type="radio"]:checked + label {
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+}
+
+#header-runs {
+    background: var(--background-accent);
+    padding: 5px;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* --- PREDICTION HERO --- */
+.prediction-hero {
+    padding: 60px 20px;
+    background: radial-gradient(circle at center, #1c2128 0%, #0d1117 100%);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
 }
 
 .record-date-value {
-    font-size: 3rem;
+    font-size: 4rem;
     font-weight: 800;
-    color: #58a6ff;
-    display: block;
+    color: var(--accent);
     margin: 10px 0;
+    text-shadow: 0 0 20px rgba(88, 166, 255, 0.3);
 }
 
+.prediction-stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 20px;
+}
+
+.stat-mini span {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.stat-mini strong {
+    font-size: 18px;
+    color: var(--text-main);
+}
+
+/* --- DASHBOARD GRID --- */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 20px;
-    padding: 20px;
+    padding: 0 40px 40px 40px;
 }
 
 .stat-card {
-    background: #161b22;
-    padding: 20px;
+    background: var(--background-accent);
+    border: 1px solid var(--border);
     border-radius: 12px;
-    border: 1px solid #30363d;
-    text-align: center;
+    padding: 24px;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    border-color: var(--text-muted);
+}
+
+.stat-card h3 {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .stat-value {
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: bold;
-    color: #eee;
+    color: #fff;
     display: block;
 }
 
 .stat-subtext {
-    color: #8b949e;
-    font-size: 0.9rem;
+    font-size: 14px;
+    color: var(--accent);
+}
+
+/* --- CHARTS & CONTENT --- */
+.card {
+    background: var(--background-accent);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 20px 40px;
+    padding: 20px;
+}
+
+.chart-section {
+    height: 450px;
+}
+
+/* --- RUNS LIST (The Bottom Section) --- */
+#summary-runs {
+    text-align: left;
+}
+
+.run-entry a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.run-entry a:hover {
+    text-decoration: underline;
+}
+
+.live-run {
+    color: #ff7b72 !important;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* --- UTILS --- */
+select {
+    background: var(--card-bg);
+    color: white;
+    border: 1px solid var(--border);
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.summary-tab, .graphs-tab, .individual-tab {
+    display: none; /* Controlled by JS */
 }
