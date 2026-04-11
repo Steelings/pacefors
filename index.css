@@ -1,13 +1,41 @@
-/.neon-glow {
-    color: #58a6ff;
+/* Fix Neon Color */
+.neon-glow {
+    color: #58a6ff !important;
     font-weight: 800;
-    text-shadow: 
-        0 0 7px #58a6ff,
-        0 0 10px #58a6ff,
-        0 0 21px #58a6ff,
-        0 0 42px #005cc5;
+    text-shadow: 0 0 10px rgba(88,166,255,0.7), 0 0 20px rgba(88,166,255,0.5), 0 0 30px #005cc5;
 }
 
+/* Center Pie Chart */
+.pie-wrapper {
+    height: 300px;
+    width: 100%;
+    display: flex;
+    justify-content: center; /* This centers the canvas */
+    align-items: center;
+}
+
+/* Center Odds Table */
+.centered-section {
+    max-width: 900px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+.modern-table {
+    margin: 0 auto;
+    width: 100%;
+    text-align: left;
+}
+
+/* Navbar Style */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background: #161b22;
+    border-bottom: 1px solid #30363d;
+}
 .prediction-hero {
     background: radial-gradient(circle at center, #1c2128 0%, #0d1117 100%);
     padding: 100px 20px;

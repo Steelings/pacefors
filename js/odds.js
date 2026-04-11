@@ -5,18 +5,19 @@ function reduceSum(obj) { return Object.values(obj).reduce((a, b) => a + b, 0); 
 function reduceLen(obj) { return Object.values(obj).reduce((a, b) => a + b.length, 0); }
 
 export function buildOdds(runs) {
-    const [counts, ...splits] = getSplits(runs);
-    const total = reduceSum(counts);
+    const [counts, nether, s1, s2, blind, strong, end] = getSplits(runs);
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    const splits = [nether, s1, s2, blind, strong, end];
+    const labels = ["Nether", "Struct 1", "Struct 2", "Blind", "Stronghold", "End"];
     const row = document.getElementById("odds-chance");
-    if (!row || total === 0) return;
 
-    const colors = [C_NETHER, C_BASTION, C_FORT, C_BLIND, C_STRONGHOLD, C_END];
-    const labels = ["Nether", "S1", "S2", "Blind", "Strong", "End"];
-    
-    row.innerHTML = `<th>Split</th><th>%</th>` + splits.map((s, i) => {
-        const p = ((reduceLen(s) / total) * 100).toFixed(1);
-        return `<tr><td style="color:${colors[i]}">${labels[i]}</td><td>${p}%</td></tr>`;
-    }).join("");
+    if (row && total > 0) {
+        row.innerHTML = `<tr><th>Split</th><th>Runs</th><th>Success %</th></tr>` + splits.map((s, i) => {
+            const num = Object.values(s).flat().length;
+            const p = ((num / total) * 100).toFixed(2); // Restored precision
+            return `<tr><td>${labels[i]}</td><td>${num}</td><td style="font-weight:bold">${p}%</td></tr>`;
+        }).join("");
+    }
 }
 
 export function buildPredictions(runs) {

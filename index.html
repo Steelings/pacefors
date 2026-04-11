@@ -10,6 +10,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
+    <header class="navbar">
+        <div class="nav-logo">
+            Forsen Speedrun Tracker <span class="beta-tag">v2.0 BETA</span>
+        </div>
+        <div class="nav-right">
+            <button class="dataset-btn" onclick="toggleModal(true)">Dataset</button>
+            <a href="https://github.com/Steelings/pacefors" target="_blank"><img src="static/github.svg" height="20"></a>
+        </div>
+    </header>
+
     <section class="prediction-hero">
         <h3>Estimated Record Date</h3>
         <span class="record-date-value neon-glow" id="hero-date">Calculating...</span>
@@ -17,7 +27,7 @@
             <div class="stat-mini"><span>90% After</span><strong id="date-after">-</strong></div>
             <div class="stat-mini"><span>99% Before</span><strong id="date-before">-</strong></div>
         </div>
-        <p id="hero-prob" style="color: var(--muted); margin-top: 15px; font-size: 0.8rem;">Awaiting data...</p>
+        <p id="hero-prob" style="color: var(--muted); margin-top: 15px;">Awaiting data...</p>
     </section>
 
     <div class="dashboard-grid">
@@ -29,29 +39,15 @@
         
         <div class="stat-card pie-card">
             <h3>Run Killers</h3>
-            <div class="canvas-container" style="height: 300px;"><canvas id="death-pie-chart"></canvas></div>
+            <div class="pie-wrapper"><canvas id="death-pie-chart"></canvas></div>
         </div>
     </div>
 
     <section class="card centered-section">
         <h2>Detailed Split Odds</h2>
         <table class="modern-table">
-            <tbody id="odds-chance"></tbody> </table>
-    </section>
-
-    <section class="card">
-        <h2>Pace Analytics: Daily Averages</h2>
-        <div class="chart-container" style="height: 450px; position: relative;">
-            <canvas class="avg-entry-chart"></canvas>
-        </div>
-    </section>
-
-    <section class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>Run History</h2>
-            <select id="summary-day"></select>
-        </div>
-        <div id="summary-runs"></div>
+            <tbody id="odds-chance"></tbody>
+        </table>
     </section>
 
     <div id="download-background" style="display:none;" class="modal-overlay">
