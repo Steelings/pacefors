@@ -32,18 +32,32 @@ body {
 }
 
 .neon-glow {
-    display: inline-block;
+    display: block;
     font-size: 3.5rem;
-    color: #ffffff !important; 
+    color: #cce7ff !important; /* Soft light-blue core */
     font-weight: 800;
-    margin: 20px 0;
+    margin: 10px 0 5px 0;
+    /* A much softer, subtle light-blue bloom */
     text-shadow: 
-        0 0 4px #ffffff,
-        0 0 10px #ffffff,
-        0 0 18px #58a6ff,
-        0 0 38px #58a6ff,
-        0 0 73px #005cc5;
-    animation: neon-pulse 1.5s ease-in-out infinite alternate;
+        0 0 5px rgba(88, 166, 255, 0.6),
+        0 0 15px rgba(88, 166, 255, 0.3),
+        0 0 25px rgba(88, 166, 255, 0.1);
+}
+
+/* Up/Down Trend Indicator underneath the date */
+.trend-indicator {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 0px;
+}
+.trend-good {
+    color: #55ee55;
+    text-shadow: 0 0 8px rgba(85, 238, 85, 0.4);
+}
+.trend-bad {
+    color: #ee5555;
+    text-shadow: 0 0 8px rgba(238, 85, 85, 0.4);
 }
 
 @keyframes neon-pulse {
@@ -128,17 +142,3 @@ body {
 .dataset-btn:hover { background: #30363d; }
 
 
-.trend-indicator {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-left: 15px;
-    vertical-align: middle;
-}
-.trend-good {
-    color: #55ee55;
-    text-shadow: 0 0 10px #55ee55;
-}
-.trend-bad {
-    color: #ee5555;
-    text-shadow: 0 0 10px #ee5555;
-}
