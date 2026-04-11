@@ -97,12 +97,26 @@ export class Runlist {
             // Updated Twitch URL generation
             let link = "";
             if (outRun.vod && outRun.timestamps && outRun.timestamps.length > 0) {
-                // Grab the LAST timestamp in the array (the death/reset), instead of [0] (the start)
                 const lastStamp = outRun.timestamps[outRun.timestamps.length - 1];
-                const parts = lastStamp.split(':');
-                const tStr = parts.length === 3 
-                    ? `${parts[0]}h${parts[1]}m${parts[2]}s` 
-                    : `${parts[0]}m${parts[1]}s`;
+                const parts = lastStamp.split(':').map(Number); // Split and convert to math numbers
+                
+                let totalSeconds = 0;
+                if (parts.length === 3) {
+                    totalSeconds = (parts[0] * 3600) + (parts[1] * 60) + parts[2];
+                } else if (parts.length === 2) {
+                    totalSeconds = (parts[0] * 60) + parts[1];
+                }
+
+                // Subtract 5 seconds (Math.max prevents it from going into negative time)
+                totalSeconds = Math.max(0, totalSeconds - 5);
+
+                // Convert back to Hours, Minutes, Seconds
+                const h = Math.floor(totalSeconds / 3600);
+                const m = Math.floor((totalSeconds % 3600) / 60);
+                const s = totalSeconds % 60;
+
+                // Format for Twitch (only include hours if it's over 1 hour)
+                const tStr = h > 0 ? `${h}h${m}m${s}s` : `${m}m${s}s`;
                 link = `href="${outRun.vod}?t=${tStr}"`;
             }
             
