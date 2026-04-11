@@ -22,7 +22,7 @@ permissions:
 
 concurrency:
   group: vod-capture
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   vod_capture:
