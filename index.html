@@ -85,6 +85,9 @@
 
     <section class="card centered-section">
         <h2>Detailed Split Odds</h2>
+        <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 20px; padding: 0 20px;">
+            Tracking the survival rate of the runs. This shows exactly how many runs made it to each specific stage, and the statistical chance of a run surviving that far.
+        </p>
         <div class="table-container">
             <table class="modern-table">
                 <tbody id="odds-chance"></tbody>
@@ -94,7 +97,7 @@
 
     <section class="card">
         <h2>Pace Analytics: Daily Averages</h2>
-        <div class="chart-container">
+        <div class="chart-container" style="height: 400px; position: relative;">
             <canvas class="avg-entry-chart"></canvas>
         </div>
     </section>
@@ -123,6 +126,7 @@
         import { buildDailySummary, buildDeathPieChart } from "./js/summary.js";
         import { buildAvgEntryChart } from "./js/graphs.js";
         import { buildOdds, buildPredictions } from "./js/odds.js";
+        import { Runlist } from "./js/runlist.js";
 
         async function init() {
             let liveRuns = [];
@@ -133,7 +137,6 @@
 
             const runs = vodRuns.concat(liveRuns);
 
-            // Safety: Wrapped in DOMContentLoaded to ensure IDs exist
             buildDailySummary(runs);
             buildPredictions(runs);
             buildDeathPieChart(runs);
