@@ -376,28 +376,35 @@
     </script>
 
    <script>
-    // We wrap the Polymarket API URL inside a CORS proxy to bypass the browser block
     const targetUrl = "https://gamma-api.polymarket.com/events?slug=will-forsen-beat-xqcs-minecraft-speedrun-record-by";
     const proxyUrl = "https://corsproxy.io/?url=";
 
     fetch(proxyUrl + encodeURIComponent(targetUrl))
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             if (data && data.length > 0) {
-                // Find the active market
+                // Find the active market (usually just one)
                 const event = data[0];
                 const market = event.markets.find(m => m.active === true) || event.markets[0];
                 
-                if (market && market.outcomePrices) {
-                    // Prices are often stringified JSON in the Gamma API
+                if (market && market.outcomePrices && market.outcomes) {
                     const prices = JSON.parse(market.outcomePrices);
-                    const yesPrice = parseFloat(prices[0]); // Index 0 is usually 'Yes'
-                    const yesPercentage = Math.round(yesPrice * 100);
+                    const outcomes = JSON.parse(market.outcomes);
                     
-                    document.getElementById("poly-odds").innerText = yesPercentage + "% YES";
+                    // Find the index where the outcome is "Yes"
+                    const yesIndex = outcomes.findIndex(o => o.toLowerCase() === "yes");
+                    
+                    if (yesIndex !== -1) {
+                        const yesPrice = parseFloat(prices[yesIndex]);
+                        const yesPercentage = Math.round(yesPrice * 100);
+                        
+                        // Update UI
+                        document.getElementById("poly-odds").innerText = yesPercentage + "% YES";
+                        
+                        // Optional: Change color if it's looking grim
+                        const oddsColor = yesPercentage < 10 ? "#ee5555" : "#4ade80";
+                        document.getElementById("poly-odds").style.color = oddsColor;
+                    }
                 } else {
                     document.getElementById("poly-odds").innerText = "Market Closed";
                 }
