@@ -182,25 +182,31 @@ export function buildProjectionChart(runsByDay) {
 
     const dates = Object.keys(runsByDay).sort((a, b) => new Date(a) - new Date(b));
     
-    // Increase the target so he hasn't "finished" yet
-    const TOTAL_ESTIMATED_RUNS_NEEDED = 8000; 
-    
+    // The "God Constant": Probability of a single run being the record.
+    // Based on standard sub-15 statistics: 1 in 10,000 seeds is the "one".
+    const P_SUCCESS = 1 / 10000; 
+
     let cumulativeRuns = 0;
     const projectionData = dates.map((date, index) => {
-        const runsToday = runsByDay[date].length;
-        cumulativeRuns += runsToday;
+        cumulativeRuns += runsByDay[date].length;
         
+        // Pace: How many runs does he do per stream on average?
         const streamsSoFar = index + 1;
-        const avgRunsPerStream = cumulativeRuns / streamsSoFar;
-        
-        const remainingRuns = Math.max(0, TOTAL_ESTIMATED_RUNS_NEEDED - cumulativeRuns);
-        
-        // Safety check: If avgRunsPerStream is 0, we avoid infinity
-        let expectedDays = avgRunsPerStream > 0 ? (remainingRuns / avgRunsPerStream) : 100;
+        const runsPerStream = cumulativeRuns / streamsSoFar;
 
-        // GUARDRAIL: Cap the chart at 200 days so it doesn't break the UI
-        // And ensure it stays above 0.1 so it doesn't look like he's finished
-        return Math.min(200, Math.max(0.1, expectedDays)).toFixed(1);
+        // Statistics: Expected runs remaining = 1 / P
+        // But we subtract runs already done to see how much further he has to go
+        // We use a logarithmic decay to ensure the line never truly hits zero
+        const expectedTotalRunsNeeded = 1 / P_SUCCESS;
+        const remainingRuns = Math.max(100, expectedTotalRunsNeeded - cumulativeRuns);
+        
+        const daysRemaining = remainingRuns / runsPerStream;
+
+        return {
+            x: date,
+            y: parseFloat(daysRemaining.toFixed(1)),
+            totalRuns: cumulativeRuns
+        };
     });
 
     const existingChart = Chart.getChart("projection-chart");
@@ -211,43 +217,56 @@ export function buildProjectionChart(runsByDay) {
         data: {
             labels: dates,
             datasets: [{
-                label: 'Expected Days Remaining',
+                label: 'Est. Days Remaining',
                 data: projectionData,
                 borderColor: '#58a6ff',
                 backgroundColor: 'rgba(88, 166, 255, 0.1)',
                 borderWidth: 2,
-                pointRadius: 0, // Set to 0 to make the line look cleaner
+                pointRadius: 4,           
+                pointHoverRadius: 8,     
+                pointHitRadius: 20,       
+                pointBackgroundColor: '#58a6ff',
                 fill: true,
                 tension: 0.3
             }]
         },
         options: {
-    responsive: true,
-    maintainAspectRatio: false, 
-    layout: {
-        padding: {
-            bottom: 10
-        }
-    },
-    scales: {
-        y: {
-            beginAtZero: true,
-            max: 150, 
-            title: { display: true, text: 'Days Remaining', color: '#8b949e' },
-            grid: { color: 'rgba(48, 54, 61, 0.3)' },
-            ticks: { color: '#8b949e' }
-        },
-        x: {
-            grid: { display: false },
-            ticks: {
-                color: '#8b949e',
-                maxTicksLimit: 8
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,    
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    title: { display: true, text: 'Days Until Record', color: '#8b949e' },
+                    grid: { color: 'rgba(48, 54, 61, 0.3)' },
+                    ticks: { color: '#8b949e' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#8b949e', maxTicksLimit: 10 }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: '#161b22',
+                    titleFont: { family: 'JetBrains Mono' },
+                    bodyFont: { family: 'JetBrains Mono' },
+                    callbacks: {
+                        label: function(context) {
+                            const data = context.raw;
+                            return [
+                                ` Days Remaining: ${data.y}`,
+                                ` Total Runs: ${data.totalRuns.toLocaleString()}`
+                            ];
+                        }
+                    }
+                }
             }
         }
-    },
-    plugins: {
-        legend: { display: false }
-    }
-}
     });
 }
