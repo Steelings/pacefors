@@ -6,54 +6,39 @@ export function buildAvgEntryChart(runs) {
     const ctx = document.querySelector('.avg-entry-chart').getContext('2d');
     if (paceChart) paceChart.destroy();
 
-    // Group runs by date to get daily averages
+    const uniqueDates = [...new Set(runs.map(r => r.date).filter(d => d && d !== "LIVE"))];
+    
+    
+    uniqueDates.sort((a, b) => new Date(`${a} 2024`).getTime() - new Date(`${b} 2024`).getTime());
+
+  
     const dailyData = {};
-    runs.forEach(run => {
-        if (!run.date) return;
-        
-        // Convert 'Mar 24' to a real timestamp so the chart can space them correctly
-        const dateKey = new Date(run.date).getTime(); 
-        
-        if (!dailyData[dateKey]) {
-            dailyData[dateKey] = { nethers: [], structs: [], strongholds: [], ends: [] };
-        }
-        
-        if (run.nether) dailyData[dateKey].nethers.push(run.nether);
-        // Assuming your JSON tracks struct 1 / blind / etc. We'll use blind as structure for the chart if struct isn't explicitly defined.
-        if (run.blind) dailyData[dateKey].structs.push(run.blind); 
-        if (run.stronghold) dailyData[dateKey].strongholds.push(run.stronghold);
-        if (run.end) dailyData[dateKey].ends.push(run.end);
+    uniqueDates.forEach(date => {
+        dailyData[date] = { nethers: [], structs: [], strongholds: [], ends: [] };
     });
 
-    // Helper to average arrays
+    runs.forEach(run => {
+        if (!run.date || run.date === "LIVE" || !dailyData[run.date]) return;
+        
+        if (run.nether) dailyData[run.date].nethers.push(run.nether);
+        if (run.blind) dailyData[run.date].structs.push(run.blind); 
+        if (run.stronghold) dailyData[run.date].strongholds.push(run.stronghold);
+        if (run.end) dailyData[run.date].ends.push(run.end);
+    });
+
+    // Helper to average arrays safely
     const getAvg = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
 
-    const netherPoints = [];
-    const structPoints = [];
-    const strongPoints = [];
-    const endPoints = [];
 
-    // Sort by timestamp just in case
-    const sortedDates = Object.keys(dailyData).sort((a, b) => Number(a) - Number(b));
-
-    sortedDates.forEach(date => {
-        const d = dailyData[date];
-        const x = Number(date); // The X axis timestamp
-        
-        const nAvg = getAvg(d.nethers);
-        const stAvg = getAvg(d.structs);
-        const shAvg = getAvg(d.strongholds);
-        const eAvg = getAvg(d.ends);
-
-        if (nAvg) netherPoints.push({ x, y: nAvg });
-        if (stAvg) structPoints.push({ x, y: stAvg });
-        if (shAvg) strongPoints.push({ x, y: shAvg });
-        if (eAvg) endPoints.push({ x, y: eAvg });
-    });
+    const netherPoints = uniqueDates.map(date => getAvg(dailyData[date].nethers));
+    const structPoints = uniqueDates.map(date => getAvg(dailyData[date].structs));
+    const strongPoints = uniqueDates.map(date => getAvg(dailyData[date].strongholds));
+    const endPoints = uniqueDates.map(date => getAvg(dailyData[date].ends));
 
     paceChart = new Chart(ctx, {
         type: 'line',
         data: {
+            labels: uniqueDates, 
             datasets: [
                 {
                     label: 'Nether',
@@ -62,16 +47,18 @@ export function buildAvgEntryChart(runs) {
                     backgroundColor: C_NETHER,
                     borderWidth: 2,
                     tension: 0.3,
-                    pointRadius: 3
+                    pointRadius: 3,
+                    spanGaps: true // Connects the line even if he missed a day
                 },
                 {
                     label: 'Structure',
                     data: structPoints,
-                    borderColor: '#8b949e', // Grey
+                    borderColor: '#8b949e',
                     backgroundColor: '#8b949e',
                     borderWidth: 2,
                     tension: 0.3,
-                    pointRadius: 3
+                    pointRadius: 3,
+                    spanGaps: true
                 },
                 {
                     label: 'Stronghold',
@@ -81,7 +68,7 @@ export function buildAvgEntryChart(runs) {
                     borderWidth: 2,
                     tension: 0.3,
                     pointRadius: 3,
-                    showLine: false // Usually sparse, scatter looks better
+                    showLine: false 
                 },
                 {
                     label: 'End',
@@ -100,18 +87,12 @@ export function buildAvgEntryChart(runs) {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    type: 'linear', // Using linear for time allows easy spacing
-                    ticks: {
-                        color: '#8b949e',
-                        callback: function(value) {
-                            // Format X-axis bottom labels
-                            return new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                        }
-                    },
+                    type: 'category', // Changed from 'linear' to prevent NaN bugs
+                    ticks: { color: '#8b949e' },
                     grid: { color: '#30363d' }
                 },
                 y: {
-                    reverse: true, // Faster times are at the top
+                    reverse: true, // Faster times at the top
                     ticks: {
                         color: '#8b949e',
                         callback: function(value) {
@@ -130,18 +111,14 @@ export function buildAvgEntryChart(runs) {
                 },
                 tooltip: {
                     callbacks: {
-                        // FIX: Converts the giant X-axis number into a clean date on Hover
+                        // Title is now just the exact category label (e.g. "Apr 01")
                         title: function(tooltipItems) {
-                            const rawVal = tooltipItems[0].parsed.x;
-                            return new Date(rawVal).toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric', 
-                                year: 'numeric' 
-                            });
+                            return tooltipItems[0].label; 
                         },
-                        // Fix: Formats the Y-axis hover value into MM:SS
+                        // Keep the exact MM:SS formatting for the hover data
                         label: function(context) {
                             const val = context.parsed.y;
+                            if (val === null) return null;
                             const m = Math.floor(val / 60);
                             const s = Math.floor(val % 60).toString().padStart(2, '0');
                             return `${context.dataset.label}: ${m}:${s}`;
