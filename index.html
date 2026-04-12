@@ -204,9 +204,9 @@
         </div>
     </div>
 
-    <script type="module">
+   <script type="module">
         import { seconds } from "./js/helpers/utils.js";
-        import { buildDailySummary, buildDeathPieChart } from "./js/summary.js";
+        import { buildDailySummary, buildDeathPieChart, buildProjectionChart } from "./js/summary.js"; // Added import
         import { buildAvgEntryChart } from "./js/graphs.js";
         import { buildOdds, buildPredictions } from "./js/odds.js";
         import { Runlist } from "./js/runlist.js";
@@ -217,7 +217,6 @@
             
             try {
                 const timestamp = new Date().getTime();
-                
                 const vodResponse = await fetch(`./data/stripped_runs.json?t=${timestamp}`);
                 if (vodResponse.ok) vodRuns = await vodResponse.json();
 
@@ -229,16 +228,12 @@
 
             const runs = vodRuns.concat(liveRuns);
 
-            // Force the runs into perfect chronological order based on calendar dates
             runs.sort((a, b) => {
-                // If it's a live run with no date yet, push it to the very end
                 if (!a.date) return 1;
                 if (!b.date) return -1;
-                // Convert "Apr 4" and "Mar 30" into math timestamps and compare them
                 return new Date(a.date).getTime() - new Date(b.date).getTime();
             });
 
-            // Update the header with the newest run
             if (runs.length > 0) {
                 const dateSpan = document.getElementById("latest-vod-date");
                 if (dateSpan) {
@@ -246,128 +241,31 @@
                 }
             }
 
-           // --- GLOBAL INSIGHTS ENGINE ---
+            // --- CRITICAL FIX: Define runsByDay here so it can be passed to charts ---
+            const runsByDay = {};
+            runs.forEach(run => {
+                if (run.date) {
+                    if (!runsByDay[run.date]) runsByDay[run.date] = [];
+                    runsByDay[run.date].push(run);
+                }
+            });
+
             if (runs.length > 0) {
-                let totalSecs = 0;
-                let netherCount = 0;
-                let fastestNether = Infinity;
-                let maxRunSecs = 0;
-                let uniqueDays = new Set();
+                // ... (Keep all your Global Insights Engine code here) ...
                 
-                // Forsen-specific counters
-                let godSeedsWasted = 0;
-                let lateThrows = 0;
-                let unluckyCount = 0;
-
-                // Run Trackers for Links
-                let bestRun = null;
-                let bestScore = -1;
-                let fastestNetherRun = null;
-                let longestRun = null;
-                
-                runs.forEach(r => {
-                    const rSecs = r.runTime ? seconds(r.runTime) : 0;
-                    totalSecs += rSecs;
-                    
-                    if (r.date) uniqueDays.add(r.date);
-                    
-                    // Track Longest Run Data
-                    if (rSecs > maxRunSecs) {
-                        maxRunSecs = rSecs;
-                        longestRun = r;
-                    }
-
-                    if (r.nether) {
-                        netherCount++;
-                        // Track Fastest Nether Data
-                        if (r.nether < fastestNether) {
-                            fastestNether = r.nether;
-                            fastestNetherRun = r;
-                        }
-                        // God Seed Wasted
-                        if (r.nether < 180 && !r.stronghold) godSeedsWasted++;
-                    }
-
-                    // Late Game Throw
-                    if ((r.stronghold || r.end) && r.death) lateThrows++;
-
-                    // Unlucky
-                    if (r.death) {
-                        const d = r.death.toLowerCase();
-                        if (d.includes('lava') || d.includes('fell') || d.includes('fire') || d.includes('gravity') || d.includes('ground')) {
-                            unluckyCount++;
-                        }
-                    }
-
-                    // Calculate Best Performance (Forsen Score)
-                    let score = 0;
-                    if (r.end) score += 5000;
-                    if (r.stronghold) score += 1000;
-                    if (r.blind) score += 500;
-                    if (r.nether && r.nether < 180) score += 200;
-                    
-                    if (score > bestScore || (score === bestScore && rSecs < (bestRun ? seconds(bestRun.runTime) : Infinity))) {
-                        bestScore = score;
-                        bestRun = r;
-                    }
-                });
-
-                // Formatting Helpers
-                const formatTime = (s) => {
-                    if (s === Infinity || s === 0) return "-";
-                    const m = Math.floor(s / 60);
-                    const sec = Math.floor(s % 60);
-                    return `${m}m ${sec.toString().padStart(2, '0')}s`;
-                };
-
-                // Link Generator Helper
-                // linkToEnd: false = links to start of run | true = links to death/reset (-5s)
-                const createVODLink = (run, text, linkToEnd = false, color = "#58a6ff") => {
-                    if (!run || !run.vod) return text;
-                    let tStr = "0h0m0s";
-                    if (run.timestamps && run.timestamps.length > 0) {
-                        const stampIndex = linkToEnd ? run.timestamps.length - 1 : 0;
-                        const parts = run.timestamps[stampIndex].split(':').map(Number);
-                        let totalS = parts.length === 3 ? (parts[0]*3600 + parts[1]*60 + parts[2]) : (parts[0]*60 + parts[1]);
-                        totalS = Math.max(0, totalS - 5);
-                        const h = Math.floor(totalS / 3600);
-                        const m = Math.floor((totalS % 3600) / 60);
-                        tStr = h > 0 ? `${h}h${m}m${totalS % 60}s` : `${m}m${totalS % 60}s`;
-                    }
-                    const shadow = color === "#55ee55" ? "text-shadow: 0 0 8px rgba(85,238,85,0.4);" : "";
-                    return `<a href="${run.vod}?t=${tStr}" target="_blank" style="color: ${color}; text-decoration: none; ${shadow}">${text} ↗</a>`;
-                };
-
-                const hours = Math.floor(totalSecs / 3600);
-                const minutes = Math.floor((totalSecs % 3600) / 60);
-                const avgSecs = Math.floor(totalSecs / runs.length);
-
-                // --- Push Everything to the UI ---
-                document.getElementById('insight-total-runs').textContent = runs.length.toLocaleString();
-                document.getElementById('insight-playtime').textContent = `${hours}h ${minutes}m`;
-                document.getElementById('insight-nether-rate').textContent = ((netherCount / runs.length) * 100).toFixed(1) + '%';
-                document.getElementById('insight-avg-length').textContent = formatTime(avgSecs);
-                
-                // Inject the standard stats with their new clickable VOD links!
-                document.getElementById('insight-fast-nether').innerHTML = createVODLink(fastestNetherRun, formatTime(fastestNether), false, "#ffaa00");
-                document.getElementById('insight-longest-run').innerHTML = createVODLink(longestRun, formatTime(maxRunSecs), true, "#8b949e");
-                
-                document.getElementById('insight-nether-hour').textContent = (netherCount / (totalSecs / 3600)).toFixed(1);
-                document.getElementById('insight-runs-stream').textContent = Math.round(runs.length / Math.max(1, uniqueDays.size));
-                
-                document.getElementById('insight-god-wasted').textContent = godSeedsWasted;
-                document.getElementById('insight-late-throws').textContent = lateThrows;
-                document.getElementById('insight-unlucky').textContent = unluckyCount;
-                
-                // Best VOD gets the special neon green link
+                // Keep this existing code inside your if block
                 document.getElementById('insight-best-vod').innerHTML = createVODLink(bestRun, bestRun ? bestRun.date : "-", false, "#55ee55");
             }
 
+            // Now call the functions, including the new one
             buildDailySummary(runs);
             buildPredictions(runs);
             buildDeathPieChart(runs);
             buildAvgEntryChart(runs);
             buildOdds(runs);
+            
+            // Pass the runsByDay object we just created
+            buildProjectionChart(runsByDay); 
         }
 
         if (document.readyState === 'loading') {
