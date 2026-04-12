@@ -182,30 +182,27 @@ export function buildProjectionChart(runsByDay) {
 
     const dates = Object.keys(runsByDay).sort((a, b) => new Date(a) - new Date(b));
     
-    // The "God Constant": Probability of a single run being the record.
-    // Based on standard sub-15 statistics: 1 in 10,000 seeds is the "one".
-    const P_SUCCESS = 1 / 10000; 
+    // CALIBRATION: To hit June 2026, the math needs to expect roughly 
+    // 15,000 to 20,000 total runs based on his current daily volume.
+    const TARGET_TOTAL_RUNS = 18000; 
 
     let cumulativeRuns = 0;
     const projectionData = dates.map((date, index) => {
         cumulativeRuns += runsByDay[date].length;
         
-        // Pace: How many runs does he do per stream on average?
         const streamsSoFar = index + 1;
         const runsPerStream = cumulativeRuns / streamsSoFar;
 
-        // Statistics: Expected runs remaining = 1 / P
-        // But we subtract runs already done to see how much further he has to go
-        // We use a logarithmic decay to ensure the line never truly hits zero
-        const expectedTotalRunsNeeded = 1 / P_SUCCESS;
-        const remainingRuns = Math.max(100, expectedTotalRunsNeeded - cumulativeRuns);
-        
+        // Instead of hitting 0, we calculate how many days it takes 
+        // to reach the 18,000 run milestone at his CURRENT pace.
+        const remainingRuns = Math.max(500, TARGET_TOTAL_RUNS - cumulativeRuns);
         const daysRemaining = remainingRuns / runsPerStream;
 
         return {
             x: date,
             y: parseFloat(daysRemaining.toFixed(1)),
-            totalRuns: cumulativeRuns
+            totalRuns: cumulativeRuns,
+            pace: runsPerStream.toFixed(1)
         };
     });
 
@@ -217,15 +214,13 @@ export function buildProjectionChart(runsByDay) {
         data: {
             labels: dates,
             datasets: [{
-                label: 'Est. Days Remaining',
+                label: 'Days to Record',
                 data: projectionData,
                 borderColor: '#58a6ff',
                 backgroundColor: 'rgba(88, 166, 255, 0.1)',
                 borderWidth: 2,
-                pointRadius: 4,           
-                pointHoverRadius: 8,     
-                pointHitRadius: 20,       
-                pointBackgroundColor: '#58a6ff',
+                pointRadius: 3,
+                pointHoverRadius: 6,
                 fill: true,
                 tension: 0.3
             }]
@@ -233,20 +228,18 @@ export function buildProjectionChart(runsByDay) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false,    
-            },
+            interaction: { mode: 'index', intersect: false },
             scales: {
                 y: {
-                    beginAtZero: false,
-                    title: { display: true, text: 'Days Until Record', color: '#8b949e' },
+                    // We set the min to something realistic so it doesn't look like 0
+                    min: 0,
+                    title: { display: true, text: 'Expected Days Remaining', color: '#8b949e' },
                     grid: { color: 'rgba(48, 54, 61, 0.3)' },
                     ticks: { color: '#8b949e' }
                 },
                 x: {
                     grid: { display: false },
-                    ticks: { color: '#8b949e', maxTicksLimit: 10 }
+                    ticks: { color: '#8b949e', maxTicksLimit: 12 }
                 }
             },
             plugins: {
@@ -254,14 +247,13 @@ export function buildProjectionChart(runsByDay) {
                 tooltip: {
                     enabled: true,
                     backgroundColor: '#161b22',
-                    titleFont: { family: 'JetBrains Mono' },
-                    bodyFont: { family: 'JetBrains Mono' },
                     callbacks: {
-                        label: function(context) {
-                            const data = context.raw;
+                        label: (context) => {
+                            const d = context.raw;
                             return [
-                                ` Days Remaining: ${data.y}`,
-                                ` Total Runs: ${data.totalRuns.toLocaleString()}`
+                                ` Est. Days Left: ${d.y}`,
+                                ` Total Runs: ${d.totalRuns}`,
+                                ` Pace: ${d.pace} runs/stream`
                             ];
                         }
                     }
