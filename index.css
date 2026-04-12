@@ -145,51 +145,57 @@ body {
 /* --- MOBILE RESPONSIVENESS (Screens under 768px) --- */
 @media (max-width: 768px) {
     
-    .navbar { 
-        flex-direction: column; 
-        padding: 15px; 
-        gap: 15px; 
-        text-align: center;
+    .navbar { flex-direction: column; padding: 15px; gap: 15px; text-align: center; }
+
+
+    .neon-glow { font-size: 2.2rem; }
+    .prediction-hero { padding: 40px 15px; }
+    .prediction-stats { flex-direction: column; gap: 15px; }
+
+  
+    .dashboard-grid { padding: 15px; gap: 15px; }
+    .card { margin: 20px 10px; padding: 15px; }
+
+
+    .pie-card, .insights-card, .stat-card[style*="span 3"] { grid-column: 1 / -1 !important; }
+
+
+    .insights-card > div { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important; }
+
+    .modal-content { width: 90%; max-width: 400px; }
+    .stat-card[style*="max-width: 400px"] { margin: 20px 15px !important; }
+
+    /* Mobile tables shouldn't squish; they should allow swiping left/right */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    }
+    .modern-table {
+        min-width: 500px; /* Forces the table to stay wide so it's readable */
     }
 
-    
-    .neon-glow { 
-        font-size: 2.2rem; 
-    }
-    .prediction-hero { 
-        padding: 40px 15px; 
-    }
-    .prediction-stats { 
-        flex-direction: column; 
-        gap: 15px; 
+    .card > div[style*="justify-content: space-between"] {
+        flex-direction: column !important;
+        align-items: stretch !important; /* Stretches the dropdown to full width */
+        gap: 15px;
     }
 
-    .dashboard-grid { 
-        padding: 15px; 
-        gap: 15px; 
-    }
-    .card { 
-        margin: 20px 10px; 
-        padding: 15px; 
-    }
-
-    
-    .pie-card, 
-    .insights-card, 
-    .stat-card[style*="span 3"] { 
-        grid-column: 1 / -1 !important; 
+   
+    select {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 5px;
     }
 
-    .insights-card > div {
-        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important;
+    #summary-runs {
+        width: 100%;
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch;
     }
 
-    .modal-content { 
-        width: 90%; 
-        max-width: 400px; 
-    }
-    
-    .stat-card[style*="max-width: 400px"] {
-        margin: 20px 15px !important;
+    #summary-runs > div {
+        flex-wrap: wrap !important;
     }
 }
