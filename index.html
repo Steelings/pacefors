@@ -154,7 +154,6 @@
 
     <script type="module">
         import { seconds } from "./js/helpers/utils.js";
-        // REMOVED: The static import for stripped_runs.json is gone!
         import { buildDailySummary, buildDeathPieChart } from "./js/summary.js";
         import { buildAvgEntryChart } from "./js/graphs.js";
         import { buildOdds, buildPredictions } from "./js/odds.js";
@@ -165,7 +164,6 @@
             let liveRuns = [];
             
             try {
-                // The ?t= timestamp is a cache-buster. It forces the browser to fetch the newest data every time!
                 const timestamp = new Date().getTime();
                 
                 const vodResponse = await fetch(`./data/stripped_runs.json?t=${timestamp}`);
@@ -179,6 +177,16 @@
 
             const runs = vodRuns.concat(liveRuns);
 
+            // Force the runs into perfect chronological order based on calendar dates
+            runs.sort((a, b) => {
+                // If it's a live run with no date yet, push it to the very end
+                if (!a.date) return 1;
+                if (!b.date) return -1;
+                // Convert "Apr 4" and "Mar 30" into math timestamps and compare them
+                return new Date(a.date).getTime() - new Date(b.date).getTime();
+            });
+
+            // Update the header with the newest run
             if (runs.length > 0) {
                 const dateSpan = document.getElementById("latest-vod-date");
                 if (dateSpan) {
@@ -186,6 +194,7 @@
                 }
             }
 
+            // Global Insights
             if (runs.length > 0) {
                 let totalSecs = 0;
                 let netherCount = 0;
