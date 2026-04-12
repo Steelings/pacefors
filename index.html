@@ -90,26 +90,57 @@
             </div>
         </div> <div class="stat-card insights-card" style="grid-column: span 3; text-align: left;">
             <h3 style="text-align: center; margin-bottom: 20px;">Global Insights</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px;">
                 
                 <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
-                    <span style="font-size: 0.75rem; color: #8b949e; text-transform: uppercase;">Total Runs</span>
-                    <strong style="display: block; font-size: 1.6rem; color: #58a6ff; margin-top: 5px;" id="insight-total-runs">-</strong>
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Total Runs</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #58a6ff; margin-top: 5px;" id="insight-total-runs">-</strong>
                 </div>
-                
                 <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
-                    <span style="font-size: 0.75rem; color: #8b949e; text-transform: uppercase;">Total Playtime</span>
-                    <strong style="display: block; font-size: 1.6rem; color: #f0f6fc; margin-top: 5px;" id="insight-playtime">-</strong>
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Total Playtime</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #f0f6fc; margin-top: 5px;" id="insight-playtime">-</strong>
                 </div>
-                
                 <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
-                    <span style="font-size: 0.75rem; color: #8b949e; text-transform: uppercase;">Nether Rate</span>
-                    <strong style="display: block; font-size: 1.6rem; color: #55ee55; margin-top: 5px;" id="insight-nether-rate">-</strong>
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Nether Rate</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #55ee55; margin-top: 5px;" id="insight-nether-rate">-</strong>
                 </div>
-                
                 <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
-                    <span style="font-size: 0.75rem; color: #8b949e; text-transform: uppercase;">Avg. Run Time</span>
-                    <strong style="display: block; font-size: 1.6rem; color: #ee5555; margin-top: 5px;" id="insight-avg-length">-</strong>
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Avg. Run Time</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #cce7ff; margin-top: 5px;" id="insight-avg-length">-</strong>
+                </div>
+
+                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Fastest Nether</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #ffaa00; margin-top: 5px;" id="insight-fast-nether">-</strong>
+                </div>
+                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Nethers / Hour</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #58a6ff; margin-top: 5px;" id="insight-nether-hour">-</strong>
+                </div>
+                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Runs / Stream</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #f0f6fc; margin-top: 5px;" id="insight-runs-stream">-</strong>
+                </div>
+                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Longest Suffering</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #8b949e; margin-top: 5px;" id="insight-longest-run">-</strong>
+                </div>
+
+                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;" title="Entered nether under 3 mins, but died before Stronghold">God Seeds Wasted</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #ee5555; margin-top: 5px;" id="insight-god-wasted">-</strong>
+                </div>
+                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;" title="Died in Stronghold or End">Late Throws</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #ff58db; margin-top: 5px;" id="insight-late-throws">-</strong>
+                </div>
+                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;" title="Deaths to Lava, Fire, or Gravity">"Unlucky" Deaths</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #ffaa00; margin-top: 5px;" id="insight-unlucky">-</strong>
+                </div>
+                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center; border-color: #55ee55;">
+                    <span style="font-size: 0.7rem; color: #55ee55; text-transform: uppercase;">Best VOD Day</span>
+                    <strong style="display: block; font-size: 1.2rem; margin-top: 8px;" id="insight-best-vod">-</strong>
                 </div>
                 
             </div>
@@ -194,32 +225,104 @@
                 }
             }
 
-            // Global Insights
+           // --- GLOBAL INSIGHTS ENGINE ---
             if (runs.length > 0) {
                 let totalSecs = 0;
                 let netherCount = 0;
+                let fastestNether = Infinity;
+                let maxRunSecs = 0;
+                let uniqueDays = new Set();
+                
+                // Forsen-specific counters
+                let godSeedsWasted = 0;
+                let lateThrows = 0;
+                let unluckyCount = 0;
+
+                // Best Run Tracker
+                let bestRun = null;
+                let bestScore = -1;
                 
                 runs.forEach(r => {
-                    if (r.runTime) totalSecs += seconds(r.runTime);
-                    if (r.nether) netherCount++;
+                    const rSecs = r.runTime ? seconds(r.runTime) : 0;
+                    totalSecs += rSecs;
+                    
+                    if (r.date) uniqueDays.add(r.date);
+                    if (rSecs > maxRunSecs) maxRunSecs = rSecs;
+
+                    if (r.nether) {
+                        netherCount++;
+                        if (r.nether < fastestNether) fastestNether = r.nether;
+                        // God Seed Wasted: Nether under 3m, but didn't reach stronghold
+                        if (r.nether < 180 && !r.stronghold) godSeedsWasted++;
+                    }
+
+                    // Late Game Throw: Reached stronghold or end, but has a death registered
+                    if ((r.stronghold || r.end) && r.death) lateThrows++;
+
+                    // Unlucky: Lava, Fall damage, Fire
+                    if (r.death) {
+                        const d = r.death.toLowerCase();
+                        if (d.includes('lava') || d.includes('fell') || d.includes('fire') || d.includes('gravity') || d.includes('ground')) {
+                            unluckyCount++;
+                        }
+                    }
+
+                    // Calculate Best Performance (Forsen Score)
+                    let score = 0;
+                    if (r.end) score += 5000;
+                    if (r.stronghold) score += 1000;
+                    if (r.blind) score += 500;
+                    if (r.nether && r.nether < 180) score += 200;
+                    
+                    if (score > bestScore || (score === bestScore && rSecs < (bestRun ? seconds(bestRun.runTime) : Infinity))) {
+                        bestScore = score;
+                        bestRun = r;
+                    }
                 });
+
+                // Formatting Helpers
+                const formatTime = (s) => {
+                    if (s === Infinity || s === 0) return "-";
+                    const m = Math.floor(s / 60);
+                    const sec = Math.floor(s % 60);
+                    return `${m}m ${sec.toString().padStart(2, '0')}s`;
+                };
 
                 const hours = Math.floor(totalSecs / 3600);
                 const minutes = Math.floor((totalSecs % 3600) / 60);
-                
                 const avgSecs = Math.floor(totalSecs / runs.length);
-                const avgM = Math.floor(avgSecs / 60);
-                const avgS = avgSecs % 60;
 
-                const elTotal = document.getElementById('insight-total-runs');
-                const elPlaytime = document.getElementById('insight-playtime');
-                const elNether = document.getElementById('insight-nether-rate');
-                const elAvg = document.getElementById('insight-avg-length');
+                // --- Best VOD Link Generator ---
+                let bestHTML = "-";
+                if (bestRun && bestRun.vod) {
+                    let tStr = "0h0m0s";
+                    if (bestRun.timestamps && bestRun.timestamps.length > 0) {
+                        const parts = bestRun.timestamps[0].split(':').map(Number);
+                        let totalS = parts.length === 3 ? (parts[0]*3600 + parts[1]*60 + parts[2]) : (parts[0]*60 + parts[1]);
+                        totalS = Math.max(0, totalS - 5); // 5 sec buffer
+                        const h = Math.floor(totalS / 3600);
+                        const m = Math.floor((totalS % 3600) / 60);
+                        tStr = h > 0 ? `${h}h${m}m${totalS % 60}s` : `${m}m${totalS % 60}s`;
+                    }
+                    // Creates a clickable neon green link
+                    bestHTML = `<a href="${bestRun.vod}?t=${tStr}" target="_blank" style="color: #55ee55; text-decoration: none; text-shadow: 0 0 8px rgba(85,238,85,0.4);">${bestRun.date} ↗</a>`;
+                }
 
-                if (elTotal) elTotal.textContent = runs.length.toLocaleString();
-                if (elPlaytime) elPlaytime.textContent = `${hours}h ${minutes}m`;
-                if (elNether) elNether.textContent = ((netherCount / runs.length) * 100).toFixed(1) + '%';
-                if (elAvg) elAvg.textContent = `${avgM}m ${avgS.toString().padStart(2, '0')}s`;
+                // --- Push Everything to the UI ---
+                document.getElementById('insight-total-runs').textContent = runs.length.toLocaleString();
+                document.getElementById('insight-playtime').textContent = `${hours}h ${minutes}m`;
+                document.getElementById('insight-nether-rate').textContent = ((netherCount / runs.length) * 100).toFixed(1) + '%';
+                document.getElementById('insight-avg-length').textContent = formatTime(avgSecs);
+                
+                document.getElementById('insight-fast-nether').textContent = formatTime(fastestNether);
+                document.getElementById('insight-nether-hour').textContent = (netherCount / (totalSecs / 3600)).toFixed(1);
+                document.getElementById('insight-runs-stream').textContent = Math.round(runs.length / Math.max(1, uniqueDays.size));
+                document.getElementById('insight-longest-run').textContent = formatTime(maxRunSecs);
+                
+                document.getElementById('insight-god-wasted').textContent = godSeedsWasted;
+                document.getElementById('insight-late-throws').textContent = lateThrows;
+                document.getElementById('insight-unlucky').textContent = unluckyCount;
+                document.getElementById('insight-best-vod').innerHTML = bestHTML;
             }
 
             buildDailySummary(runs);
