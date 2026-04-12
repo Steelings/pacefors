@@ -88,8 +88,7 @@
             <div class="pie-wrapper">
                 <canvas id="death-pie-chart"></canvas>
             </div>
-
-            <div class="stat-card insights-card" style="grid-column: span 3; text-align: left;">
+        </div> <div class="stat-card insights-card" style="grid-column: span 3; text-align: left;">
             <h3 style="text-align: center; margin-bottom: 20px;">Global Insights</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
                 
@@ -115,9 +114,7 @@
                 
             </div>
         </div>
-    </div>
-
-    <section class="card centered-section">
+    </div> <section class="card centered-section">
         <h2>Detailed Split Odds</h2>
         <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 20px; padding: 0 20px;">
             Tracking the survival rate of the runs. This shows exactly how many runs made it to each specific stage, and the statistical chance of a run surviving that far.
@@ -175,7 +172,7 @@
             if (runs.length > 0) {
                 const dateSpan = document.getElementById("latest-vod-date");
                 if (dateSpan) {
-                    dateSpan.textContent = runs[0].date;
+                    dateSpan.textContent = runs[runs.length - 1].date;
                 }
             }
 
