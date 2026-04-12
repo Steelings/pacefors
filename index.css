@@ -180,22 +180,44 @@ body {
         align-items: stretch !important; /* Stretches the dropdown to full width */
         gap: 15px;
     }
+    
 
-   
+   .card > div[style*="justify-content: space-between"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 15px;
+    }
+
+    
     select {
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
-        margin-bottom: 5px;
+        margin-bottom: 10px !important;
     }
 
     #summary-runs {
         width: 100%;
-        overflow-x: auto; 
-        -webkit-overflow-scrolling: touch;
+        overflow-x: hidden; /* Disable horizontal scrolling entirely */
     }
 
+    #summary-runs > div:first-child {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+   
     #summary-runs > div {
-        flex-wrap: wrap !important;
+        font-size: 0.75rem !important; 
+        padding-left: 0 !important; 
+        padding-right: 0 !important;
+        gap: 5px !important; 
+    }
+
+
+    #summary-runs img {
+        width: 20px !important;
+        height: 20px !important;
     }
 }
