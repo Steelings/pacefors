@@ -18,7 +18,10 @@
     <header class="navbar">
         <div class="nav-logo" style="display: flex; align-items: center; gap: 10px;">
             <img src="static/1528.webp" height="28" alt="15:28">
-            <span>Forsen Speedrun Tracker (last vod: 26 march)<span class="beta-tag">v2.0 BETA - Maintained by Steelingz</span></span>
+           <span>
+                Forsen Speedrun Tracker (last vod: <span id="latest-vod-date" style="color: #58a6ff;">loading...</span>)
+                <span class="beta-tag">v2.0 BETA - Maintained by Steelingz</span>
+           </span>
         </div>
         <div class="nav-right">
             <button class="dataset-btn" onclick="toggleModal(true)">Dataset</button>
@@ -141,6 +144,13 @@
             } catch (e) { console.log("No live data found."); }
 
             const runs = vodRuns.concat(liveRuns);
+
+            if (runs.length > 0) {
+                const dateSpan = document.getElementById("latest-vod-date");
+                if (dateSpan) {
+                    dateSpan.textContent = runs[0].date;
+                }
+            }
 
             buildDailySummary(runs);
             buildPredictions(runs);
