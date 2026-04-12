@@ -89,6 +89,7 @@
                 <canvas id="death-pie-chart"></canvas>
             </div>
         </div> 
+
         <div class="stat-card insights-card" style="grid-column: span 3; text-align: left;">
             <h3 style="text-align: center; margin-bottom: 20px;">Global Insights</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px;">
@@ -151,20 +152,18 @@
             </div>
         </div>
 
-
         <div class="stat-card" style="grid-column: span 3; min-height: 400px;">
              <h3 style="text-align: center; color: #8b949e;">Projected Timeline to Record</h3>
              <canvas id="projection-chart"></canvas>
         </div>
     </div> 
     
-    <div class="stat-card" style="border: 1px solid #333; padding: 15px; border-radius: 8px; background-color: #1e1e1e; text-align: center;">
-    <h3 style="margin-top: 0; color: #888; font-size: 14px;">Polymarket Odds</h3>
-    <p style="font-size: 14px; margin-bottom: 10px;">Will Forsen beat xQc by April 30?</p>
-    <h2 id="poly-odds" style="color: #4ade80; font-size: 32px; margin: 10px 0;">Loading...</h2>
-    <a href="https://polymarket.com/event/will-forsen-beat-xqcs-minecraft-speedrun-record-by" target="_blank" style="color: #3b82f6; text-decoration: none; font-size: 12px;">View Market ↗</a>
+    <div class="stat-card" style="border: 1px solid #333; padding: 15px; border-radius: 8px; background-color: #1e1e1e; text-align: center; margin: 20px auto; max-width: 400px;">
+        <h3 style="margin-top: 0; color: #888; font-size: 14px;">Polymarket Odds</h3>
+        <p style="font-size: 14px; margin-bottom: 10px;">Will Forsen beat xQc by April 30?</p>
+        <h2 id="poly-odds" style="color: #4ade80; font-size: 32px; margin: 10px 0;">Loading...</h2>
+        <a href="https://polymarket.com/event/will-forsen-beat-xqcs-minecraft-speedrun-record-by" target="_blank" style="color: #3b82f6; text-decoration: none; font-size: 12px;">View Market ↗</a>
     </div>
-
 
     <section class="card centered-section">
         <h2>Detailed Split Odds</h2>
@@ -204,9 +203,9 @@
         </div>
     </div>
 
-   <script type="module">
+    <script type="module">
         import { seconds } from "./js/helpers/utils.js";
-        import { buildDailySummary, buildDeathPieChart, buildProjectionChart } from "./js/summary.js"; // Added import
+        import { buildDailySummary, buildDeathPieChart, buildProjectionChart } from "./js/summary.js";
         import { buildAvgEntryChart } from "./js/graphs.js";
         import { buildOdds, buildPredictions } from "./js/odds.js";
         import { Runlist } from "./js/runlist.js";
@@ -215,6 +214,31 @@
             let vodRuns = [];
             let liveRuns = [];
             
+            // 1. Define UI Helpers first to ensure scope
+            const formatTime = (s) => {
+                if (s === Infinity || s === 0) return "-";
+                const m = Math.floor(s / 60);
+                const sec = Math.floor(s % 60);
+                return `${m}m ${sec.toString().padStart(2, '0')}s`;
+            };
+
+            const createVODLink = (run, text, linkToEnd = false, color = "#58a6ff") => {
+                if (!run || !run.vod) return text;
+                let tStr = "0h0m0s";
+                if (run.timestamps && run.timestamps.length > 0) {
+                    const stampIndex = linkToEnd ? run.timestamps.length - 1 : 0;
+                    const parts = run.timestamps[stampIndex].split(':').map(Number);
+                    let totalS = parts.length === 3 ? (parts[0]*3600 + parts[1]*60 + parts[2]) : (parts[0]*60 + parts[1]);
+                    totalS = Math.max(0, totalS - 5);
+                    const h = Math.floor(totalS / 3600);
+                    const m = Math.floor((totalS % 3600) / 60);
+                    tStr = h > 0 ? `${h}h${m}m${totalS % 60}s` : `${m}m${totalS % 60}s`;
+                }
+                const shadow = color === "#55ee55" ? "text-shadow: 0 0 8px rgba(85,238,85,0.4);" : "";
+                return `<a href="${run.vod}?t=${tStr}" target="_blank" style="color: ${color}; text-decoration: none; ${shadow}">${text} ↗</a>`;
+            };
+
+            // 2. Load Data
             try {
                 const timestamp = new Date().getTime();
                 const vodResponse = await fetch(`./data/stripped_runs.json?t=${timestamp}`);
@@ -222,26 +246,17 @@
 
                 const liveResponse = await fetch(`./data/live_stripped_runs.json?t=${timestamp}`);
                 if (liveResponse.ok) liveRuns = await liveResponse.json();
-            } catch (e) { 
-                console.log("Error loading data."); 
-            }
+            } catch (e) { console.log("Error loading data."); }
 
             const runs = vodRuns.concat(liveRuns);
 
+            // 3. Sort and Create Groupings
             runs.sort((a, b) => {
                 if (!a.date) return 1;
                 if (!b.date) return -1;
                 return new Date(a.date).getTime() - new Date(b.date).getTime();
             });
 
-            if (runs.length > 0) {
-                const dateSpan = document.getElementById("latest-vod-date");
-                if (dateSpan) {
-                    dateSpan.textContent = runs[runs.length - 1].date;
-                }
-            }
-
-            // --- CRITICAL FIX: Define runsByDay here so it can be passed to charts ---
             const runsByDay = {};
             runs.forEach(run => {
                 if (run.date) {
@@ -250,78 +265,93 @@
                 }
             });
 
+            // 4. Update Header and Insights
             if (runs.length > 0) {
-                // ... (Keep all your Global Insights Engine code here) ...
+                document.getElementById("latest-vod-date").textContent = runs[runs.length - 1].date;
+
+                let totalSecs = 0, netherCount = 0, fastestNether = Infinity, maxRunSecs = 0;
+                let godSeedsWasted = 0, lateThrows = 0, unluckyCount = 0;
+                let bestRun = null, bestScore = -1, fastestNetherRun = null, longestRun = null;
+                let uniqueDays = new Set();
                 
-                // Keep this existing code inside your if block
+                runs.forEach(r => {
+                    const rSecs = r.runTime ? seconds(r.runTime) : 0;
+                    totalSecs += rSecs;
+                    if (r.date) uniqueDays.add(r.date);
+                    if (rSecs > maxRunSecs) { maxRunSecs = rSecs; longestRun = r; }
+                    if (r.nether) {
+                        netherCount++;
+                        if (r.nether < fastestNether) { fastestNether = r.nether; fastestNetherRun = r; }
+                        if (r.nether < 180 && !r.stronghold) godSeedsWasted++;
+                    }
+                    if ((r.stronghold || r.end) && r.death) lateThrows++;
+                    if (r.death) {
+                        const d = r.death.toLowerCase();
+                        if (d.includes('lava') || d.includes('fell') || d.includes('fire') || d.includes('gravity')) unluckyCount++;
+                    }
+                    let score = 0;
+                    if (r.end) score += 5000;
+                    if (r.stronghold) score += 1000;
+                    if (r.blind) score += 500;
+                    if (score > bestScore) { bestScore = score; bestRun = r; }
+                });
+
+                document.getElementById('insight-total-runs').textContent = runs.length.toLocaleString();
+                document.getElementById('insight-playtime').textContent = `${Math.floor(totalSecs / 3600)}h ${Math.floor((totalSecs % 3600) / 60)}m`;
+                document.getElementById('insight-nether-rate').textContent = ((netherCount / runs.length) * 100).toFixed(1) + '%';
+                document.getElementById('insight-avg-length').textContent = formatTime(Math.floor(totalSecs / runs.length));
+                document.getElementById('insight-fast-nether').innerHTML = createVODLink(fastestNetherRun, formatTime(fastestNether), false, "#ffaa00");
+                document.getElementById('insight-longest-run').innerHTML = createVODLink(longestRun, formatTime(maxRunSecs), true, "#8b949e");
+                document.getElementById('insight-nether-hour').textContent = (netherCount / (totalSecs / 3600)).toFixed(1);
+                document.getElementById('insight-runs-stream').textContent = Math.round(runs.length / Math.max(1, uniqueDays.size));
+                document.getElementById('insight-god-wasted').textContent = godSeedsWasted;
+                document.getElementById('insight-late-throws').textContent = lateThrows;
+                document.getElementById('insight-unlucky').textContent = unluckyCount;
                 document.getElementById('insight-best-vod').innerHTML = createVODLink(bestRun, bestRun ? bestRun.date : "-", false, "#55ee55");
             }
 
-            // Now call the functions, including the new one
+            // 5. Final Builds
             buildDailySummary(runs);
             buildPredictions(runs);
             buildDeathPieChart(runs);
             buildAvgEntryChart(runs);
             buildOdds(runs);
-            
-            // Pass the runsByDay object we just created
-            buildProjectionChart(runsByDay); 
+            buildProjectionChart(runsByDay);
         }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
+        init();
     </script>
 
     <script>
         function toggleModal(show) {
             document.getElementById('download-background').style.display = show ? 'flex' : 'none';
         }
+
+        // Polymarket Logic (Direct fetch with CORS Proxy)
+        const targetUrl = "https://gamma-api.polymarket.com/events?slug=will-forsen-beat-xqcs-minecraft-speedrun-record-by";
+        const proxyUrl = "https://corsproxy.io/?url=";
+
+        fetch(proxyUrl + encodeURIComponent(targetUrl))
+            .then(response => response.json())
+            .then(data => {
+                if (data && data[0] && data[0].markets) {
+                    const market = data[0].markets.find(m => m.groupItemTitle === "April 30") || data[0].markets[0];
+                    let yesPrice = 0;
+                    if (market.outcomePrices) {
+                        const prices = JSON.parse(market.outcomePrices);
+                        yesPrice = parseFloat(prices[0]);
+                    }
+                    if (yesPrice === 0 && market.lastTradePrice) yesPrice = market.lastTradePrice;
+                    
+                    const yesPercentage = Math.round(yesPrice * 100);
+                    const oddsEl = document.getElementById("poly-odds");
+                    if(oddsEl) {
+                        oddsEl.innerText = yesPercentage + "% YES";
+                        oddsEl.style.color = yesPercentage < 10 ? "#ee5555" : "#4ade80";
+                    }
+                }
+            })
+            .catch(e => console.error("Polymarket Fetch Error:", e));
     </script>
-<script>
-    // We use a specific market call to get the most accurate 'Yes' price
-    const targetUrl = "https://gamma-api.polymarket.com/events?slug=will-forsen-beat-xqcs-minecraft-speedrun-record-by";
-    const proxyUrl = "https://corsproxy.io/?url=";
-
-    fetch(proxyUrl + encodeURIComponent(targetUrl))
-        .then(response => response.json())
-        .then(data => {
-            if (data && data[0] && data[0].markets) {
-                // Find the specific market for April 30
-                const market = data[0].markets.find(m => m.groupItemTitle === "April 30") || data[0].markets[0];
-                
-                // Polymarket sometimes puts the live price in 'outcomePrices' 
-                // but for low volume markets, we should check 'bestBid' or 'lastTradePrice'
-                let yesPrice = 0;
-                
-                if (market.outcomePrices) {
-                    const prices = JSON.parse(market.outcomePrices);
-                    // Most markets follow [Yes, No] order
-                    yesPrice = parseFloat(prices[0]);
-                }
-
-                // If outcomePrices shows 0, fallback to the Mid-Price calculation
-                if (yesPrice === 0 && market.clobTokenIds) {
-                    // This is a more advanced fallback for busy markets
-                    // For now, let's try to grab the price from the 'lastTradePrice' if available
-                    yesPrice = market.lastTradePrice || 0.15; // Default to 15% if API is being weird
-                }
-
-                const yesPercentage = Math.round(yesPrice * 100);
-                
-                // Final UI Update
-                const oddsEl = document.getElementById("poly-odds");
-                oddsEl.innerText = yesPercentage + "% YES";
-                oddsEl.style.color = yesPercentage < 10 ? "#ee5555" : "#4ade80";
-            }
-        })
-        .catch(error => {
-            console.error("Polymarket Fetch Error:", error);
-            document.getElementById("poly-odds").innerText = "Odds Unavailable";
-        });
-</script>
-   
 </body>
 </html>
