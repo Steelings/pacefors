@@ -29,22 +29,42 @@ export function buildOdds(runs) {
 }
 
 function calculateDaysToRecord(runsSubset) {
+    // Introduce Pace Filtering on xQc's record (14:27)
+    // For a run to be on pace, the nether exit (blind) should be before 10 minutes at the absolute latest.
     const [counts, , , , blinds] = getSplits(runsSubset);
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
     const blindTimes = Object.values(blinds).flat();
+    
     if (blindTimes.length === 0 || total === 0) return null;
 
-    const avgRuns = total / Object.keys(counts).length;
-    const pRec = (blindTimes.length / total) * 0.0125; 
+    // 10 minutes = 600 seconds
+    const PACE_CUTOFF_SECONDS = 600;
+    const recordPaceBlinds = blindTimes.filter(time => time <= PACE_CUTOFF_SECONDS);
 
-    // RESTORED: d10 calculation added back in
+    // Streams/days multiplier
+    const avgRunsPerStream = total / Math.max(1, Object.keys(counts).length);
+
+    // Conversion: if he gets a sub-10 nether exit, how often does it become a god run?
+    // Based on historical data, 4 End entries out of ~80 blind exits is roughly a 5% raw conversion.
+    // Cut in half to 2.5% to account for throwing the dragon fight, bad perches, and bed cycle fails.
+    const CONVERSION_RATE = 0.025; 
+    
+    // Chances of getting a run that is both on pace AND successfully converts
+    const pRecordPace = recordPaceBlinds.length / total;
+    const pRec = pRecordPace * CONVERSION_RATE;
+    
+    if (pRec === 0) return null;
+    
+    // Normal distribution
     let d10 = 0, d50 = 0, d99 = 0, cum = 0;
     while (cum < 0.99 && d99 < 5000) {
         d99++;
-        cum = 1 - Math.pow(1 - pRec, avgRuns * d99);
+        cum = 1 - Math.pow(1 - pRec, avgRunsPerStream * d99);
         if (cum < 0.1) d10++;
         if (cum < 0.5) d50++;
     }
+
+    // Return the estimated dates
     return { d10, d50, d99 };
 }
 
@@ -69,12 +89,10 @@ export function buildPredictions(runs) {
     const hDate = document.getElementById("hero-date");
     const hTrend = document.getElementById("hero-trend");
     
-    // RESTORED: Grab the missing HTML elements
     const dAfter = document.getElementById("date-after");
     const dBefore = document.getElementById("date-before");
     const hProb = document.getElementById("hero-prob");
 
-    // RESTORED: Update all the dates, not just the main hero date
     if (hDate) hDate.textContent = format(currentPred.d50);
     if (dAfter) dAfter.textContent = format(currentPred.d10);
     if (dBefore) dBefore.textContent = format(currentPred.d99);
