@@ -1,27 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Pacefors v2.0 | Forsen Tracker</title>
-    <link rel="stylesheet" href="index.css"/>
-    <link rel="icon" type="image/png" href="static/SmugTime.webp"/>
-    
+    <link rel="stylesheet" href="index.css" />
+    <link rel="icon" type="image/png" href="static/SmugTime.webp" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 </head>
+
 <body>
 
     <header class="navbar">
         <div class="nav-logo" style="display: flex; align-items: center; gap: 10px;">
             <img src="static/1528.webp" height="28" alt="15:28">
-           <span>
+            <span>
                 Forsen Speedrun Tracker (last vod: <span id="latest-vod-date" style="color: #58a6ff;">loading...</span>)
                 <span class="beta-tag">v2.0 BETA - Maintained by Steelingz</span>
-           </span>
+            </span>
         </div>
         <div class="nav-right">
             <button class="dataset-btn" onclick="toggleModal(true)">Dataset</button>
@@ -33,7 +35,7 @@
 
     <section class="prediction-hero">
         <h3>Estimated Record Date</h3>
-        
+
         <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
             <span class="record-date-value neon-glow" id="hero-date">Calculating...</span>
             <span id="hero-trend" class="trend-indicator"></span>
@@ -82,95 +84,127 @@
             <span class="stat-value" id="val-end-qty">-</span>
             <span class="stat-subtext" id="val-end-avg">-</span>
         </div>
-        
+
         <div class="stat-card pie-card">
             <h3>Run Killers</h3>
             <div class="pie-wrapper">
                 <canvas id="death-pie-chart"></canvas>
             </div>
-        </div> 
+        </div>
 
         <div class="stat-card insights-card" style="grid-column: span 3; text-align: left;">
             <h3 style="text-align: center; margin-bottom: 20px;">Global Insights</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px;">
-                
-                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+
+                <div
+                    style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
                     <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Total Runs</span>
-                    <strong style="display: block; font-size: 1.4rem; color: #58a6ff; margin-top: 5px;" id="insight-total-runs">-</strong>
+                    <strong style="display: block; font-size: 1.4rem; color: #58a6ff; margin-top: 5px;"
+                        id="insight-total-runs">-</strong>
                 </div>
-                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                <div
+                    style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
                     <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Total Playtime</span>
-                    <strong style="display: block; font-size: 1.4rem; color: #f0f6fc; margin-top: 5px;" id="insight-playtime">-</strong>
+                    <strong style="display: block; font-size: 1.4rem; color: #f0f6fc; margin-top: 5px;"
+                        id="insight-playtime">-</strong>
                 </div>
-                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                <div
+                    style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
                     <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Nether Rate</span>
-                    <strong style="display: block; font-size: 1.4rem; color: #55ee55; margin-top: 5px;" id="insight-nether-rate">-</strong>
+                    <strong style="display: block; font-size: 1.4rem; color: #55ee55; margin-top: 5px;"
+                        id="insight-nether-rate">-</strong>
                 </div>
-                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                <div
+                    style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
                     <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Avg. Run Time</span>
-                    <strong style="display: block; font-size: 1.4rem; color: #cce7ff; margin-top: 5px;" id="insight-avg-length">-</strong>
+                    <strong style="display: block; font-size: 1.4rem; color: #cce7ff; margin-top: 5px;"
+                        id="insight-avg-length">-</strong>
                 </div>
 
-                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                <div
+                    style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
                     <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Fastest Nether</span>
-                    <strong style="display: block; font-size: 1.4rem; color: #ffaa00; margin-top: 5px;" id="insight-fast-nether">-</strong>
+                    <strong style="display: block; font-size: 1.4rem; color: #ffaa00; margin-top: 5px;"
+                        id="insight-fast-nether">-</strong>
                 </div>
-                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                <div
+                    style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
                     <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Nethers / Hour</span>
-                    <strong style="display: block; font-size: 1.4rem; color: #58a6ff; margin-top: 5px;" id="insight-nether-hour">-</strong>
+                    <strong style="display: block; font-size: 1.4rem; color: #58a6ff; margin-top: 5px;"
+                        id="insight-nether-hour">-</strong>
                 </div>
-                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
-                  <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;" title="Average number of resets it takes to get one nether entry">Resets / Nether</span>
-                 <strong style="display: block; font-size: 1.4rem; color: #ff7b72; margin-top: 5px;" id="insight-resets-per-nether">-</strong>
+                <div
+                    style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;"
+                        title="Average number of resets it takes to get one nether entry">Resets / Nether</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #ff7b72; margin-top: 5px;"
+                        id="insight-resets-per-nether">-</strong>
                 </div>
-                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                <div
+                    style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
                     <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Runs / Stream</span>
-                    <strong style="display: block; font-size: 1.4rem; color: #f0f6fc; margin-top: 5px;" id="insight-runs-stream">-</strong>
+                    <strong style="display: block; font-size: 1.4rem; color: #f0f6fc; margin-top: 5px;"
+                        id="insight-runs-stream">-</strong>
                 </div>
-                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                <div
+                    style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
                     <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Longest Suffering</span>
-                    <strong style="display: block; font-size: 1.4rem; color: #8b949e; margin-top: 5px;" id="insight-longest-run">-</strong>
+                    <strong style="display: block; font-size: 1.4rem; color: #8b949e; margin-top: 5px;"
+                        id="insight-longest-run">-</strong>
                 </div>
 
-                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
-                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;" title="Entered nether under 3 mins, but died before Stronghold">God Seeds Wasted</span>
-                    <strong style="display: block; font-size: 1.4rem; color: #ee5555; margin-top: 5px;" id="insight-god-wasted">-</strong>
+                <div
+                    style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;"
+                        title="Entered nether under 3 mins, but died before Stronghold">God Seeds Wasted</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #ee5555; margin-top: 5px;"
+                        id="insight-god-wasted">-</strong>
                 </div>
-                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
-                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;" title="Died in Stronghold or End">Late Throws</span>
-                    <strong style="display: block; font-size: 1.4rem; color: #ff58db; margin-top: 5px;" id="insight-late-throws">-</strong>
+                <div
+                    style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;"
+                        title="Died in Stronghold or End">Late Throws</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #ff58db; margin-top: 5px;"
+                        id="insight-late-throws">-</strong>
                 </div>
-                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
-                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;" title="Deaths to Lava, Fire, or Gravity">"Unlucky" Deaths</span>
-                    <strong style="display: block; font-size: 1.4rem; color: #ffaa00; margin-top: 5px;" id="insight-unlucky">-</strong>
+                <div
+                    style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;"
+                        title="Deaths to Lava, Fire, or Gravity">"Unlucky" Deaths</span>
+                    <strong style="display: block; font-size: 1.4rem; color: #ffaa00; margin-top: 5px;"
+                        id="insight-unlucky">-</strong>
                 </div>
-                <div style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center; border-color: #55ee55;">
+                <div
+                    style="background: #21262d; padding: 15px; border-radius: 8px; border: 1px solid #30363d; text-align: center; border-color: #55ee55;">
                     <span style="font-size: 0.7rem; color: #55ee55; text-transform: uppercase;">Best VOD Day</span>
                     <strong style="display: block; font-size: 1.2rem; margin-top: 8px;" id="insight-best-vod">-</strong>
                 </div>
-                
+
             </div>
         </div>
 
         <div class="stat-card" style="grid-column: span 3; height: 400px; position: relative; overflow: hidden;">
-             <h3 style="text-align: center; color: #8b949e; margin-bottom: 10px;">Projected Timeline to Record</h3>
-        <div style="height: 330px; width: 100%;">
-          <canvas id="projection-chart"></canvas>
+            <h3 style="text-align: center; color: #8b949e; margin-bottom: 10px;">Projected Timeline to Record</h3>
+            <div style="height: 330px; width: 100%;">
+                <canvas id="projection-chart"></canvas>
+            </div>
         </div>
-        </div>
-    </div> 
-    
-    <div class="stat-card" style="border: 1px solid #333; padding: 15px; border-radius: 8px; background-color: #1e1e1e; text-align: center; margin: 20px auto; max-width: 400px;">
+    </div>
+
+    <div class="stat-card"
+        style="border: 1px solid #333; padding: 15px; border-radius: 8px; background-color: #1e1e1e; text-align: center; margin: 20px auto; max-width: 400px;">
         <h3 style="margin-top: 0; color: #888; font-size: 14px;">Polymarket Odds</h3>
         <p style="font-size: 14px; margin-bottom: 10px;">Will Forsen beat xQc by April 30?</p>
         <h2 id="poly-odds" style="color: #4ade80; font-size: 32px; margin: 10px 0;">Loading...</h2>
-        <a href="https://polymarket.com/event/will-forsen-beat-xqcs-minecraft-speedrun-record-by" target="_blank" style="color: #3b82f6; text-decoration: none; font-size: 12px;">View Market ↗</a>
+        <a href="https://polymarket.com/event/will-forsen-beat-xqcs-minecraft-speedrun-record-by" target="_blank"
+            style="color: #3b82f6; text-decoration: none; font-size: 12px;">View Market ↗</a>
     </div>
 
     <section class="card centered-section">
         <h2>Detailed Split Odds</h2>
         <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 20px; padding: 0 20px;">
-            Tracking the survival rate of the runs. This shows exactly how many runs made it to each specific stage, and the statistical chance of a run surviving that far.
+            Tracking the survival rate of the runs. This shows exactly how many runs made it to each specific stage, and
+            the statistical chance of a run surviving that far.
         </p>
         <div class="table-container">
             <table class="modern-table">
@@ -215,7 +249,7 @@
         async function init() {
             let vodRuns = [];
             let liveRuns = [];
-            
+
             // 1. Define UI Helpers first to ensure scope
             const formatTime = (s) => {
                 if (s === Infinity || s === 0) return "-";
@@ -230,15 +264,23 @@
                 if (run.timestamps && run.timestamps.length > 0) {
                     const stampIndex = linkToEnd ? run.timestamps.length - 1 : 0;
                     const parts = run.timestamps[stampIndex].split(':').map(Number);
-                    let totalS = parts.length === 3 ? (parts[0]*3600 + parts[1]*60 + parts[2]) : (parts[0]*60 + parts[1]);
+                    let totalS = parts.length === 3 ? (parts[0] * 3600 + parts[1] * 60 + parts[2]) : (parts[0] * 60 + parts[1]);
                     totalS = Math.max(0, totalS - 5);
                     const h = Math.floor(totalS / 3600);
                     const m = Math.floor((totalS % 3600) / 60);
                     tStr = h > 0 ? `${h}h${m}m${totalS % 60}s` : `${m}m${totalS % 60}s`;
                 }
                 const shadow = color === "#55ee55" ? "text-shadow: 0 0 8px rgba(85,238,85,0.4);" : "";
-                return `<a href="${run.vod}?t=${tStr}" target="_blank" style="color: ${color}; text-decoration: none; ${shadow}">${text} ↗</a>`;
+
+                // UI/UX Upgrades: Added class "vod-link", a title for hover tooltip, and an SVG Play Icon
+                return `<a href="${run.vod}?t=${tStr}" target="_blank" class="vod-link" title="Watch Twitch VOD starting at ${tStr}" style="color: ${color}; ${shadow}">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align: middle; margin-right: 4px;">
+            <path d="M8 5v14l11-7z"/>
+        </svg>
+        ${text}
+    </a>`;
             };
+
 
             // 2. Load Data
             try {
@@ -275,7 +317,7 @@
                 let godSeedsWasted = 0, lateThrows = 0, unluckyCount = 0;
                 let bestRun = null, bestScore = -1, fastestNetherRun = null, longestRun = null;
                 let uniqueDays = new Set();
-                
+
                 runs.forEach(r => {
                     const rSecs = r.runTime ? seconds(r.runTime) : 0;
                     totalSecs += rSecs;
@@ -344,10 +386,10 @@
                         yesPrice = parseFloat(prices[0]);
                     }
                     if (yesPrice === 0 && market.lastTradePrice) yesPrice = market.lastTradePrice;
-                    
+
                     const yesPercentage = Math.round(yesPrice * 100);
                     const oddsEl = document.getElementById("poly-odds");
-                    if(oddsEl) {
+                    if (oddsEl) {
                         oddsEl.innerText = yesPercentage + "% YES";
                         oddsEl.style.color = yesPercentage < 10 ? "#ee5555" : "#4ade80";
                     }
@@ -356,4 +398,5 @@
             .catch(e => console.error("Polymarket Fetch Error:", e));
     </script>
 </body>
+
 </html>

@@ -221,3 +221,23 @@ body {
         height: 20px !important;
     }
 }
+
+/* --- VOD LINK UI --- */
+.vod-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    margin-left: -6px; /* Offset the padding so it aligns with the text below */
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.vod-link:hover {
+    background-color: rgba(88, 166, 255, 0.15); /* Soft blue highlight */
+    text-decoration: underline;
+}
+
+.vod-link:active {
+    transform: scale(0.95);
+}
