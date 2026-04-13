@@ -102,13 +102,13 @@ export function buildPredictions(runs) {
     if (hTrend && previousPred) {
         const diff = currentPred.d50 - previousPred.d50;
         if (diff < 0) {
-            hTrend.textContent = `(↓ ${Math.abs(diff)} days)`;
+            hTrend.textContent = `(↓ Record pushed back by ${Math.abs(diff)} days!)`;
             hTrend.className = "trend-indicator trend-good";
         } else if (diff > 0) {
-            hTrend.textContent = `(↑ ${diff} days)`;
+            hTrend.textContent = `(↑ ${diff} days added to grind)`;
             hTrend.className = "trend-indicator trend-bad";
         } else {
-            hTrend.textContent = "(No Change)";
+            hTrend.textContent = "(No Change in pace)";
             hTrend.className = "trend-indicator";
             hTrend.style.color = "#8b949e";
             hTrend.style.textShadow = "none";
