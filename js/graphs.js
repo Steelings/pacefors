@@ -8,20 +8,25 @@ export function buildAvgEntryChart(runs) {
 
     const uniqueDates = [...new Set(runs.map(r => r.date).filter(d => d && d !== "LIVE"))];
     
-    
+    // Sort dates properly
     uniqueDates.sort((a, b) => new Date(`${a} 2024`).getTime() - new Date(`${b} 2024`).getTime());
 
-  
+    // Initialize arrays for all 5 splits
     const dailyData = {};
     uniqueDates.forEach(date => {
-        dailyData[date] = { nethers: [], structs: [], strongholds: [], ends: [] };
+        dailyData[date] = { nethers: [], struct1s: [], struct2s: [], strongholds: [], ends: [] };
     });
 
+    // Populate data
     runs.forEach(run => {
         if (!run.date || run.date === "LIVE" || !dailyData[run.date]) return;
         
         if (run.nether) dailyData[run.date].nethers.push(run.nether);
-        if (run.blind) dailyData[run.date].structs.push(run.blind); 
+        
+        // Updated to match your JSON keys!
+        if (run.s1) dailyData[run.date].struct1s.push(run.s1); 
+        if (run.s2) dailyData[run.date].struct2s.push(run.s2); 
+        
         if (run.stronghold) dailyData[run.date].strongholds.push(run.stronghold);
         if (run.end) dailyData[run.date].ends.push(run.end);
     });
@@ -29,9 +34,10 @@ export function buildAvgEntryChart(runs) {
     // Helper to average arrays safely
     const getAvg = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
 
-
+    // Calculate averages for all 5 points
     const netherPoints = uniqueDates.map(date => getAvg(dailyData[date].nethers));
-    const structPoints = uniqueDates.map(date => getAvg(dailyData[date].structs));
+    const struct1Points = uniqueDates.map(date => getAvg(dailyData[date].struct1s));
+    const struct2Points = uniqueDates.map(date => getAvg(dailyData[date].struct2s));
     const strongPoints = uniqueDates.map(date => getAvg(dailyData[date].strongholds));
     const endPoints = uniqueDates.map(date => getAvg(dailyData[date].ends));
 
@@ -51,10 +57,20 @@ export function buildAvgEntryChart(runs) {
                     spanGaps: true // Connects the line even if he missed a day
                 },
                 {
-                    label: 'Structure',
-                    data: structPoints,
-                    borderColor: '#8b949e',
+                    label: 'Struct 1',
+                    data: struct1Points,
+                    borderColor: '#8b949e', // Grey
                     backgroundColor: '#8b949e',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    spanGaps: true
+                },
+                {
+                    label: 'Struct 2',
+                    data: struct2Points,
+                    borderColor: '#79c0ff', // Light Blue to distinguish from Struct 1
+                    backgroundColor: '#79c0ff',
                     borderWidth: 2,
                     tension: 0.3,
                     pointRadius: 3,
@@ -87,7 +103,7 @@ export function buildAvgEntryChart(runs) {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    type: 'category', // Changed from 'linear' to prevent NaN bugs
+                    type: 'category', 
                     ticks: { color: '#8b949e' },
                     grid: { color: '#30363d' }
                 },
