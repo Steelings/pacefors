@@ -44,23 +44,27 @@ body {
     font-size: 0.9rem;
     font-weight: 500;
     margin-bottom: 30px;
-    text-decoration: none;
+    text-decoration: none !important; /* Forces the ugly underline to go away */
     transition: all 0.2s ease;
     cursor: default;
+}
+
+.twitch-badge span {
+    text-decoration: none !important;
 }
 
 /* Offline state */
 .badge-offline {
     background: #21262d;
     border: 1px solid #30363d;
-    color: #8b949e;
+    color: #8b949e !important;
 }
 
 /* Live Minecraft state */
 .badge-live-mc {
     background: rgba(85, 238, 85, 0.1);
     border: 1px solid #55ee55;
-    color: #55ee55;
+    color: #55ee55 !important;
     box-shadow: 0 0 15px rgba(85, 238, 85, 0.15);
     cursor: pointer;
 }
@@ -73,7 +77,7 @@ body {
 .badge-live-other {
     background: rgba(238, 85, 85, 0.1);
     border: 1px solid #ee5555;
-    color: #ee5555;
+    color: #ee5555 !important;
     box-shadow: 0 0 15px rgba(238, 85, 85, 0.15);
     cursor: pointer;
 }
@@ -82,12 +86,13 @@ body {
     box-shadow: 0 0 25px rgba(238, 85, 85, 0.3);
 }
 
-.pulse-dot {
-    width: 8px;
-    height: 8px;
+/* The Red Live Pulse */
+.pulse-dot-red {
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background-color: currentColor;
-    box-shadow: 0 0 8px currentColor;
+    background-color: #ff3333;
+    box-shadow: 0 0 8px #ff3333;
     animation: pulse-animation 1.5s infinite alternate;
 }
 
