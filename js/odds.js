@@ -38,7 +38,8 @@ function calculateDaysToRecord(runsSubset) {
     if (blindTimes.length === 0 || total === 0) return null;
 
     // 10 minutes = 600 seconds
-    const PACE_CUTOFF_SECONDS = 600;
+    // EDIT: Asked professional speedrunner @metser (twitch.tv/metser) and we came out at 630 seconds cutoff
+    const PACE_CUTOFF_SECONDS = 630;
     const recordPaceBlinds = blindTimes.filter(time => time <= PACE_CUTOFF_SECONDS);
 
     // Streams/days multiplier

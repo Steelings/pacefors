@@ -185,7 +185,7 @@ export function buildProjectionChart(runsByDay) {
     let cumulativeRuns = 0;
     let cumulativePaceRuns = 0;
     const CONVERSION_RATE = 0.025; // 2.5% conversion
-    const PACE_CUTOFF = 600; // 10 minutes
+    const PACE_CUTOFF = 630; // 10.5 minutes EDIT @metser
 
     const projectionData = dates.map((date, index) => {
         const dayRuns = runsByDay[date];
