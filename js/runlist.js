@@ -96,7 +96,6 @@ export class Runlist {
         runElement.innerHTML = processedRuns.map(outRun => {
             const dateStr = outRun.vod ? outRun.date : "LIVE";
             
-     
             let link = "";
             if (outRun.vod && outRun.timestamps && outRun.timestamps.length > 0) {
                 const lastStamp = outRun.timestamps[outRun.timestamps.length - 1];
@@ -117,6 +116,23 @@ export class Runlist {
 
                 const tStr = h > 0 ? `${h}h${m}m${s}s` : `${m}m${s}s`;
                 link = `href="${outRun.vod}?t=${tStr}"`;
+            }
+            
+            // Build the clickable link if a VOD exists, otherwise show plain text
+            let runIdentifierHTML = "";
+            if (link) {
+                runIdentifierHTML = `
+                    <a target="_blank" ${link} class="vod-link" title="Watch VOD" style="color: #58a6ff;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align: text-bottom; margin-right: 4px;">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <span style="color: #8b949e;">#${outRun.originalIndex}</span> - ${dateStr}
+                    </a>
+                `;
+            } else {
+                runIdentifierHTML = `
+                    <span style="color: #8b949e; margin-left: 10px;">#${outRun.originalIndex}</span> - ${dateStr}
+                `;
             }
             
             const deathText = outRun.deathData ? outRun.deathData.text : "Reset";
@@ -141,9 +157,8 @@ export class Runlist {
             return `
             <div class="run-entry" style="border-bottom: 1px solid #30363d; padding: 12px 0; display: flex; align-items: center;">
                 
-                <span style="width: 130px; font-size: 0.85rem; flex-shrink: 0;">
-                    <span style="color: #8b949e;">#${outRun.originalIndex}</span> - 
-                    <a target="_blank" ${link} style="color: #58a6ff; text-decoration: none;">${dateStr}</a>
+                <span style="width: 140px; font-size: 0.85rem; flex-shrink: 0; display: inline-flex; align-items: center;">
+                    ${runIdentifierHTML}
                 </span>
                 
                 <div style="flex-grow: 1; height: 8px; display: flex; background: #21262d; border-radius: 4px; overflow: hidden; margin: 0 20px;">
