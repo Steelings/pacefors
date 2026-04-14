@@ -214,6 +214,18 @@ body {
     transform: scale(0.95);
 }
 
+@media (max-width: 1200px) {
+    
+    .dashboard-grid .stat-card {
+        grid-column: 1 / -1 !important; 
+    }
+
+    .pie-wrapper {
+        height: 350px; 
+    }
+}
+
+
 /* --- MOBILE RESPONSIVENESS (Screens under 768px) --- */
 @media (max-width: 768px) {
     

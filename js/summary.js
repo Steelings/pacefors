@@ -100,6 +100,17 @@ export function buildDeathPieChart(runs) {
         "Other": "static/aware.webp"
     };
 
+   //preload images as HTML Image objects for Chart.js to render
+    const loadedImages = {};
+    Object.keys(imgMap).forEach(key => {
+        const img = new Image();
+        img.src = imgMap[key];
+        img.width = 20;  // Scale down the images for the legend
+        img.height = 20; // scaling
+        loadedImages[key] = img;
+    });
+
+    // deaths
     runs.forEach(run => {
         if (run.death) {
             let cause = "Other";
@@ -119,25 +130,19 @@ export function buildDeathPieChart(runs) {
 
     const sortedLabels = Object.keys(deathCounts).sort((a, b) => deathCounts[b] - deathCounts[a]);
     const sortedData = sortedLabels.map(label => deathCounts[label]);
-
+    
     const ctx = document.getElementById('death-pie-chart');
     if (!ctx) return;
 
-    new Chart(ctx.getContext('2d'), {
+    // 3. Initialize the Chart
+    const myChart = new Chart(ctx.getContext('2d'), {
         type: 'pie',
         data: {
             labels: sortedLabels,
             datasets: [{
                 data: sortedData,
                 backgroundColor: [
-                    '#ee5555', // Nether Red
-                    '#558877', // Stronghold Green
-                    '#8855ee', // Blind Purple
-                    '#eeaa55', // End Orange
-                    '#635b55', // Bastion Grey
-                    '#7a0000', // Fort Red
-                    '#252540', // Navy
-                    '#30363d'  // Muted
+                    '#ee5555', '#558877', '#8855ee', '#eeaa55', '#635b55', '#7a0000', '#252540', '#30363d'
                 ],
                 borderColor: '#161b22',
                 borderWidth: 3
@@ -153,9 +158,35 @@ export function buildDeathPieChart(runs) {
                         color: '#8b949e',
                         padding: 20,
                         font: { family: 'JetBrains Mono', size: 12 },
-                        // Injects icons into the legend if browser supports it
                         usePointStyle: true,
-                        pointStyle: 'rectRounded'
+                        
+                        // 4. Custom label generator to include Percentages and the loaded Images
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                const dataset = data.datasets[0];
+                                const total = dataset.data.reduce((acc, curr) => acc + curr, 0);
+                                
+                                return data.labels.map((label, i) => {
+                                    const value = dataset.data[i];
+                                    const percentage = ((value / total) * 100).toFixed(1) + "%";
+                                    const meta = chart.getDatasetMeta(0);
+                                    const style = meta.controller.getStyle(i);
+
+                                    return {
+                                        text: `${percentage} ${label}`, // e.g., "35.2% Piglins"
+                                        fillStyle: style.backgroundColor,
+                                        strokeStyle: style.borderColor,
+                                        lineWidth: style.borderWidth,
+                                        hidden: isNaN(dataset.data[i]) || meta.data[i].hidden,
+                                        index: i,
+                                        // Pass the preloaded Image object (fallback to circle/rect if missing)
+                                        pointStyle: loadedImages[label] || 'rectRounded' 
+                                    };
+                                });
+                            }
+                            return [];
+                        }
                     }
                 },
                 tooltip: {
@@ -173,6 +204,11 @@ export function buildDeathPieChart(runs) {
                 }
             }
         }
+    });
+
+    // 5. Force the chart to update once the images are fetched so they don't render blank initially
+    Object.values(loadedImages).forEach(img => {
+        img.onload = () => myChart.update();
     });
 }
 
