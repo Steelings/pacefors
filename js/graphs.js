@@ -41,13 +41,13 @@ const imgNether = new Image(16, 16);
 imgNether.src = 'static/nether.jpeg';
 
 const imgStruct = new Image(16, 16); 
-imgStruct.src = 'static/fortress.jpeg'; 
+imgStruct.src = 'static/fortress.png'; 
 
 const imgStronghold = new Image(16, 16); 
-imgStronghold.src = 'static/stronghold.jpeg';
+imgStronghold.src = 'static/stronghold.png';
 
 const imgEnd = new Image(16, 16); 
-imgEnd.src = 'static/end.jpeg';
+imgEnd.src = 'static/end.png';
 
 paceChart = new Chart(ctx, {
     type: 'line',
