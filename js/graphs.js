@@ -1,4 +1,4 @@
-import { C_NETHER, C_STRONGHOLD, C_END } from "./helpers/utils.js";
+import { C_NETHER, C_BASTION, C_FORT, C_BLIND, C_STRONGHOLD, C_END } from "./helpers/utils.js";
 
 let paceChart = null;
 
@@ -11,46 +11,49 @@ export function buildAvgEntryChart(runs) {
     // Sort dates properly
     uniqueDates.sort((a, b) => new Date(`${a} 2024`).getTime() - new Date(`${b} 2024`).getTime());
 
-    // Initialize arrays for 4 splits
+    // Initialize arrays for 6 splits
     const dailyData = {};
     uniqueDates.forEach(date => {
-        dailyData[date] = { nethers: [], structs: [], strongholds: [], ends: [] };
+        dailyData[date] = { nethers: [], bastions: [], fortresses: [], blinds: [], strongholds: [], ends: [] };
     });
 
+    // Populate data using the correct exact keys from your JSON
     runs.forEach(run => {
         if (!run.date || run.date === "LIVE" || !dailyData[run.date]) return;
         
         if (run.nether) dailyData[run.date].nethers.push(run.nether);
-        
-        // FIX: Using run.fort to track Fortress time instead of run.blind
-        if (run.fort) dailyData[run.date].structs.push(run.fort); 
-        
+        if (run.bastion) dailyData[run.date].bastions.push(run.bastion);
+        if (run.fort) dailyData[run.date].fortresses.push(run.fort);
+        if (run.blind) dailyData[run.date].blinds.push(run.blind);
         if (run.stronghold) dailyData[run.date].strongholds.push(run.stronghold);
         if (run.end) dailyData[run.date].ends.push(run.end);
     });
 
-    // Helper to average arrays safely (Already works perfectly for 1 entry!)
+    // Helper to average arrays safely
     const getAvg = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
 
     // Calculate averages
     const netherPoints = uniqueDates.map(date => getAvg(dailyData[date].nethers));
-    const structPoints = uniqueDates.map(date => getAvg(dailyData[date].structs));
+    const bastionPoints = uniqueDates.map(date => getAvg(dailyData[date].bastions));
+    const fortPoints = uniqueDates.map(date => getAvg(dailyData[date].fortresses));
+    const blindPoints = uniqueDates.map(date => getAvg(dailyData[date].blinds));
     const strongPoints = uniqueDates.map(date => getAvg(dailyData[date].strongholds));
     const endPoints = uniqueDates.map(date => getAvg(dailyData[date].ends));
 
-    // Pre-load images with an onload event to update the chart instantly
+    // Pre-load images with an onload event to prevent invisible points
     const loadImage = (src) => {
         const img = new Image(16, 16); 
         img.src = src;
         img.onload = () => { 
-            // This forces Chart.js to redraw once the image is ready, fixing the "missing" points
             if (paceChart) paceChart.update(); 
         };
         return img;
     };
 
     const imgNether = loadImage('static/nether.jpeg');
-    const imgStruct = loadImage('static/fortress.png');
+    const imgBastion = loadImage('static/bastion.png');
+    const imgFortress = loadImage('static/fortress.png');
+    const imgBlind = loadImage('static/first_portal.png');
     const imgStronghold = loadImage('static/stronghold.png');
     const imgEnd = loadImage('static/end.png');
 
@@ -70,13 +73,33 @@ export function buildAvgEntryChart(runs) {
                     spanGaps: true 
                 },
                 {
-                    label: 'Structure',
-                    data: structPoints,
-                    borderColor: '#8b949e', 
-                    backgroundColor: '#8b949e',
+                    label: 'Bastion',
+                    data: bastionPoints,
+                    borderColor: C_BASTION || '#f6d32d', // Fallback to yellow if missing
+                    backgroundColor: C_BASTION || '#f6d32d',
                     borderWidth: 2,
                     tension: 0.3,
-                    pointStyle: imgStruct, 
+                    pointStyle: imgBastion, 
+                    spanGaps: true 
+                },
+                {
+                    label: 'Fortress',
+                    data: fortPoints,
+                    borderColor: C_FORT || '#800000', // Fallback to bordeaux if missing
+                    backgroundColor: C_FORT || '#800000',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointStyle: imgFortress, 
+                    spanGaps: true
+                },
+                {
+                    label: 'Blind',
+                    data: blindPoints,
+                    borderColor: C_BLIND || '#2edb54', // Fallback to green if missing
+                    backgroundColor: C_BLIND || '#2edb54',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointStyle: imgBlind, 
                     spanGaps: true
                 },
                 {
@@ -87,7 +110,7 @@ export function buildAvgEntryChart(runs) {
                     borderWidth: 2,
                     tension: 0.3,
                     pointStyle: imgStronghold, 
-                    showLine: false 
+                    showLine: false // Kept false so late-game throws don't draw chaotic lines
                 },
                 {
                     label: 'End',
