@@ -75,7 +75,7 @@ export function buildPredictions(runs) {
     if (!currentPred) return;
 
     // 2. Find runs from the most recent day to separate them
-    const latestDate = runs[0].date; 
+    const latestDate = runs[runs.length - 1].date;
     const previousRuns = runs.filter(r => r.date !== latestDate);
     
     // 3. Calculate what the prediction WAS before the latest stream
@@ -103,7 +103,7 @@ export function buildPredictions(runs) {
     if (hTrend && previousPred) {
         const diff = currentPred.d50 - previousPred.d50;
         if (diff < 0) {
-            hTrend.textContent = `(↓ Record pushed back by ${Math.abs(diff)} days!)`;
+            hTrend.textContent = `(↓ ${Math.abs(diff)} days shaved off the grind! Doubters?)`;
             hTrend.className = "trend-indicator trend-good";
         } else if (diff > 0) {
             hTrend.textContent = `(↑ ${diff} days added to grind)`;
